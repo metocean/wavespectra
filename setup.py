@@ -8,6 +8,9 @@ install_requires = [
     'numpy',
     'xarray>=0.8',
     'matplotlib',
+    'dask',
+    'toolz',
+    'cloudpickle',
     ]
 
 setup(name='pyspectra',
