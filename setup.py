@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 install_requires = [
     'numpy',
-    'xarray>=0.8',
+    'xarray>=0.9',
     'matplotlib',
     'dask',
     'toolz',
