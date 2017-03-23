@@ -76,9 +76,9 @@ def read_spec_swan(filename, dirorder=True):
     spectra = SwanSpecFile2(filename, dirorder=True)
     spec_list = flatten([s for s in spectra.readall()], [])
 
-    # Sort out missing data which is read as an one-dimensional array
+    # Read up coordinates
     times = spectra.times
-    sites = spectra.locations
+    sites = [site.id for site in spectra.locations]
     freqs = spec_list[0].freqs
     dirs = spec_list[0].dirs
     flat_lons = [site.x for site in spectra.locations]
