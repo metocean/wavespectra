@@ -111,7 +111,7 @@ class SpecArray(object):
         Sint.freq.values = [fint]
         return Sint/df
 
-    def _peak(self, arr):
+    def _peak_old(self, arr):
         """
         Returns the index ipeak of largest peak in 1D-array arr
         A peak is found IFF arr(ipeak-1) < arr(ipeak) < arr(ipeak+1)
@@ -129,7 +129,7 @@ class SpecArray(object):
         # else:
         #     return None
 
-    def _peak_new(self, arr):
+    def _peak(self, arr):
         """
         Returns the indices ipeak of largest peaks along freq dim in a ND-array
         arr representing a dataset of 1D spectra (integrated over directions)
