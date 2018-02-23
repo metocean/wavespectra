@@ -69,7 +69,7 @@ class SpecDataset(object):
         """
         dset = self.dset.copy(deep=True)
 
-        unsupported_dims = set(dset.dims) - set(supported_dims)
+        unsupported_dims = set(dset.efth.dims) - set(supported_dims)
         if unsupported_dims:
             raise NotImplementedError('Dimensions {} are not supported by {} method'.format(
                 unsupported_dims, sys._getframe().f_back.f_code.co_name))
@@ -112,7 +112,7 @@ class SpecDataset(object):
         # Dump each timestep
         if is_time:
             for t in darray.time:
-                darrout = darray.sel(time=t)
+                darrout = darray.sel(time=t, method='nearest')
                 if darrout.time.size == 1:
                     sfile.writeSpectra(darrout.transpose('site','freq','dir').values,
                                        time=to_datetime(t.values))
