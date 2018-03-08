@@ -23,7 +23,7 @@ def to_datetime(np64):
         dt = pd.to_datetime(str(np64.values)).to_pydatetime()
     else:
         print IOError('Cannot convert %s into datetime, expected np.datetime64 or xr.DataArray' %
-            type(np64))
+                      type(np64))
     return dt
 
 def spddir_to_uv(spd, direc, coming_from=False):
@@ -40,7 +40,7 @@ def spddir_to_uv(spd, direc, coming_from=False):
 
     """
     ang_rot = 180 if coming_from else 0
-    direcR = np.deg2rad(direc + ang_rot)     
+    direcR = np.deg2rad(direc + ang_rot)
     u = spd * np.sin(direcR)
     v = spd * np.cos(direcR)
     return u, v
@@ -86,24 +86,24 @@ def interp_spec(inspec, infreq, indir, outfreq=None, outdir=None, method='linear
     """
     outfreq = infreq if outfreq is None or outfreq is False else outfreq
     outdir = indir if outdir is None or outdir is False else outdir
-    
+
     if (np.array_equal(infreq, outfreq)) & (np.array_equal(indir, outdir)):
         outspec = copy.deepcopy(inspec)
     elif np.array_equal(indir, outdir):
         if indir is not None:
-            outspec = np.zeros((len(outfreq), len(outdir)))            
+            outspec = np.zeros((len(outfreq), len(outdir)))
             for idir in range(len(indir)):
-                outspec[:,idir] = np.interp(outfreq, infreq, inspec[:,idir], left=0., right=0.)
+                outspec[:, idir] = np.interp(outfreq, infreq, inspec[:, idir], left=0., right=0.)
         else:
             outspec = np.interp(outfreq, infreq, np.array(inspec).ravel(), left=0., right=0.)
     else:
-        dirs = D2R * (270 - np.expand_dims(outdir,0))
-        dirs2 = D2R * (270 - np.expand_dims(indir,0))
-        cosmat = np.dot(np.expand_dims(outfreq,-1), np.cos(dirs))
-        sinmat = np.dot(np.expand_dims(outfreq,-1), np.sin(dirs))
-        cosmat2 = np.dot(np.expand_dims(infreq,-1), np.cos(dirs2))
-        sinmat2 = np.dot(np.expand_dims(infreq,-1), np.sin(dirs2))
-        outspec = griddata((cosmat2.flat, sinmat2.flat), inspec.flat, (cosmat,sinmat), method, 0.)
+        dirs = D2R * (270 - np.expand_dims(outdir, 0))
+        dirs2 = D2R * (270 - np.expand_dims(indir, 0))
+        cosmat = np.dot(np.expand_dims(outfreq, -1), np.cos(dirs))
+        sinmat = np.dot(np.expand_dims(outfreq, -1), np.sin(dirs))
+        cosmat2 = np.dot(np.expand_dims(infreq, -1), np.cos(dirs2))
+        sinmat2 = np.dot(np.expand_dims(infreq, -1), np.sin(dirs2))
+        outspec = griddata((cosmat2.flat, sinmat2.flat), inspec.flat, (cosmat, sinmat), method, 0.)
     return outspec
 
 def flatten_list(l, a):

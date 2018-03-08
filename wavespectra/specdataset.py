@@ -15,7 +15,7 @@ class Plugin(type):
 
     def __new__(cls, name, bases, dct):
         modules = [__import__('wavespectra.output.{}'.format(os.path.splitext(fname)[0]), fromlist=['*'])
-                    for fname in os.listdir(os.path.join(here, 'output')) if fname.endswith('.py')]
+                   for fname in os.listdir(os.path.join(here, 'output')) if fname.endswith('.py')]
         for module in modules:
             for module_attr in dir(module):
                 function = getattr(module, module_attr)
@@ -26,7 +26,7 @@ class Plugin(type):
 @xr.register_dataset_accessor('spec')
 class SpecDataset(object):
     """Wrapper around the xarray dataset.
-    
+
     Plugin functions defined in wavespectra/output/<module>
     are attached as methods in this accessor class.
 
@@ -78,8 +78,8 @@ class SpecDataset(object):
                 unsupported_dims, sys._getframe().f_back.f_code.co_name))
 
         # If grid reshape into site, if neither define fake site dimension
-        if set(('lon','lat')).issubset(dset.dims):
-            dset = dset.stack(site=('lat','lon'))
+        if set(('lon', 'lat')).issubset(dset.dims):
+            dset = dset.stack(site=('lat', 'lon'))
         elif 'site' not in dset.dims:
             dset = dset.expand_dims('site')
 

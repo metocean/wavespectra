@@ -9,7 +9,7 @@ import logging
 
 import sys
 import os
-sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # New imports
 import xarray as xr
@@ -44,24 +44,24 @@ class TestSpecSwan(unittest.TestCase):
         t = time.time() - self.startTime
         print ("%s: %.3f" % (self.id(), t))
 
-    def calcNew(self,spec,method='hs'):
+    def calcNew(self, spec, method='hs'):
         startTime = time.time()
-        self.new = getattr(spec,method)()
+        self.new = getattr(spec, method)()
         self.ntime = time.time() - startTime
         print ('%s: wavespectra: \t\t %s' % (method, self.ntime))
 
-    def calcOld(self,spec,method='hs'):
+    def calcOld(self, spec, method='hs'):
         startTime = time.time()
-        self.old = self.calcOldTs(spec,method=method)
+        self.old = self.calcOldTs(spec, method=method)
         self.otime = time.time() - startTime
         print ('%s: pymo: \t\t %s' % (method, self.otime))
 
     def check_method(self, method):
         print("\nChecking %s:" % method)
-        self.calcOld(self.specold,method=method)
-        self.calcNew(self.specnew,method=method)
+        self.calcOld(self.specold, method=method)
+        self.calcNew(self.specnew, method=method)
         print ('x times improvement: \t%s' % (self.otime/self.ntime))
-        assert_array_almost_equal(self.old.values.squeeze(),self.new.values.squeeze(), decimal=4,)
+        assert_array_almost_equal(self.old.values.squeeze(), self.new.values.squeeze(), decimal=4,)
         # self.plot()
         # plt.title(method)
         # plt.show()
@@ -115,7 +115,7 @@ class TestSpecSwan(unittest.TestCase):
         self.new.plot(label='pymsl')
         #plt.legend()
 
-    def calcOldTs(self,spec,method):
+    def calcOldTs(self, spec, method):
         darrays = []
         lat = []
         lon = []
@@ -124,12 +124,12 @@ class TestSpecSwan(unittest.TestCase):
             data = []
             lat.append(sitei.x)
             lon.append(sitei.y)
-            for i,S in enumerate(spec.readall()):
-                data.append(getattr(S,method)())
+            for i, S in enumerate(spec.readall()):
+                data.append(getattr(S, method)())
 
             darrays.append(data)
         time = self.specold.times
-        return xr.DataArray(darrays,[('station',np.arange(0,len(lat))), ('time',time)]).transpose()
+        return xr.DataArray(darrays, [('station', np.arange(0, len(lat))), ('time', time)]).transpose()
 
 class TestSpecWW3Native(TestSpecSwan):
 
@@ -141,10 +141,10 @@ class TestSpecWW3Native(TestSpecSwan):
         startTime = time.time()
         self.specnew = read_ww3(testfile)
         # Old spectra
-        self.specold=WW3NCSpecFile(testfile)
-        self.sites = [Site(x=x,y=y) for x,y in zip(self.specold.lon,self.specold.lat)]
+        self.specold = WW3NCSpecFile(testfile)
+        self.sites = [Site(x=x, y=y) for x, y in zip(self.specold.lon, self.specold.lat)]
 
-    def calcOldTs(self,spec,method):
+    def calcOldTs(self, spec, method):
         darrays = []
         lat = []
         lon = []
@@ -152,14 +152,14 @@ class TestSpecWW3Native(TestSpecSwan):
         #for sitei in [self.sites[0]]:
             data = []
             time = []
-            self.sito=spec.defSites(sitei)
+            self.sito = spec.defSites(sitei)
             lat.append(sitei.x)
             lon.append(sitei.y)
-            for i,S in enumerate(spec.readall()):
+            for i, S in enumerate(spec.readall()):
                 time.append(S.time)
-                data.append(getattr(S,method)())
+                data.append(getattr(S, method)())
             darrays.append(data)
-        return xr.DataArray(darrays,[('station',np.arange(0,len(lat))), ('time',time)]).transpose()
+        return xr.DataArray(darrays, [('station', np.arange(0, len(lat))), ('time', time)]).transpose()
 
 class TestSpecWW3MSL(TestSpecWW3Native):
 
@@ -171,8 +171,8 @@ class TestSpecWW3MSL(TestSpecWW3Native):
         startTime = time.time()
         self.specnew = read_ww3_msl(testfile)
         # Old spectra
-        self.specold=WW3NCSpecFile(testfile)
-        self.sites = [Site(x=x,y=y) for x,y in zip(self.specold.lon,self.specold.lat)]
+        self.specold = WW3NCSpecFile(testfile)
+        self.sites = [Site(x=x, y=y) for x, y in zip(self.specold.lon, self.specold.lat)]
 
 class TestWW3Dims(unittest.TestCase):
 
