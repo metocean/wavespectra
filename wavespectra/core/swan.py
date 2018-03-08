@@ -16,7 +16,7 @@ class SwanSpecFile(object):
                  id='Swan Spectrum', dirorder=False, append=False, tabfile=None):
         self.times = False
         self.filename = filename
-        self.tabfile = tabfile or os.path.splitext(self.filename.replace('.gz',''))[0]+'.tab'
+        self.tabfile = tabfile or os.path.splitext(self.filename.replace('.gz', ''))[0]+'.tab'
         self.is_tab = False
         self.buf = None
 
@@ -36,7 +36,7 @@ class SwanSpecFile(object):
             self.write_header(time, id)
             self.fmt = len(self.dirs) * '{:5.0f}'
         else:
-            self.fid = fopen(filename,'r+' if append else 'r')
+            self.fid = fopen(filename, 'r+' if append else 'r')
             header = self._read_header('SWAN')
             while True:
                 if not self._read_header('$'):
@@ -47,7 +47,7 @@ class SwanSpecFile(object):
             self.x = []
             self.y = []
             for ip in self._read_header('LONLAT', True):
-                xy = map(float,ip.split())
+                xy = map(float, ip.split())
                 self.x.append(xy[0])
                 self.y.append(xy[1])
             self.x = np.array(self.x)
@@ -61,7 +61,7 @@ class SwanSpecFile(object):
                 self.dirs = np.array(map(float, self.ndir))
             else:
                 self.dirs = to_nautical(np.array(map(float, self.cdir)))
-            self._read_header('QUANT',True)
+            self._read_header('QUANT', True)
             self.fid.readline()
             self.excval = int(float(self.fid.readline().split()[0]))
 
@@ -82,7 +82,7 @@ class SwanSpecFile(object):
             if numspec:
                 line = self.fid.readline()
                 n = int(re.findall(r'\b(\d+)\b', line)[0])
-                self.buf = [self.fid.readline() for i in range(0,n)]
+                self.buf = [self.fid.readline() for i in range(0, n)]
             rtn = self.buf
             self.buf = None
         else:
@@ -101,7 +101,7 @@ class SwanSpecFile(object):
             else:
                 return None
         Sout = []
-        for ip,pp in enumerate(self.x):
+        for ip, pp in enumerate(self.x):
             Snew = np.nan * np.zeros((len(self.freqs), len(self.dirs)))
             if self._read_header('NODATA'):
                 pass
@@ -110,16 +110,16 @@ class SwanSpecFile(object):
                     Snew = np.zeros((len(self.freqs), len(self.dirs)))
                 elif self._read_header('FACTOR'):
                     fac = float(self.fid.readline())
-                    for i,f in enumerate(self.freqs):
+                    for i, f in enumerate(self.freqs):
                         line = self.fid.readline()
                         lsplit = line.split()
                         try:
-                            Snew[i,:] = map(float, lsplit)
+                            Snew[i, :] = map(float, lsplit)
                         except:
                             pass
                     Snew *= fac
                     if self.dirmap:
-                        Snew = Snew[:,self.dirmap]
+                        Snew = Snew[:, self.dirmap]
             Sout.append(Snew)
         return Sout
 
@@ -145,7 +145,7 @@ class SwanSpecFile(object):
         # Location
         strout += '{:40}{}\n'.format('LONLAT', 'locations in spherical coordinates')
         strout += '{:>6d}{:34}{}\n'.format(len(self.x), '', 'number of locations')
-        for x,y in zip(self.x, self.y):
+        for x, y in zip(self.x, self.y):
             strout += '{:2}{:<0.6f}{:2}{:<0.6f}\n'.format('', x, '', y)
         # Frequency
         strout += '{:40}{}\n'.format('AFREQ', 'absolute frequencies in Hz')
@@ -199,7 +199,7 @@ def read_tab(filename, toff=0):
     Args:
         filename (str): name of SWAN tab file to read
         toff (float): timezone offset in hours
-    
+
     Returns:
         Pandas DataFrame object
 
@@ -207,11 +207,11 @@ def read_tab(filename, toff=0):
     dateparse = lambda x: datetime.datetime.strptime(x, '%Y%m%d.%H%M%S')
     df = pd.read_csv(filename,
                      delim_whitespace=True,
-                     skiprows=[0,1,2,3,5,6],
+                     skiprows=[0, 1, 2, 3, 5, 6],
                      parse_dates=[0],
                      date_parser=dateparse,
                      index_col=0,
-                     )
+                    )
     df.index.name = attrs.TIMENAME
     df.index = df.index.shift(toff, freq='1H')
     for col1, col2 in zip(df.columns[-1:0:-1], df.columns[-2::-1]):
