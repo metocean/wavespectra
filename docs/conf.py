@@ -19,9 +19,19 @@
 #
 import os
 import sys
+from mock import Mock as MagicMock
 import wavespectra
 # sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../wavespectra'))
+
+# Mock class for replacing fortran dependent imports for read the docs build
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+
+MOCK_MODULES = ['specpart',]
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ------------------------------------------------
 
