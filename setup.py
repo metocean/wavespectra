@@ -76,6 +76,8 @@ def ext_configuration(parent_package='', top_path=None):
     return config
 
 kwargs = ext_configuration(top_path='').todict()
+# Remove it for building RTD
+kwargs.pop('ext_modules')
 
 setup(
     name=NAME,
