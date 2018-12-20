@@ -575,6 +575,7 @@ class SpecArray(object):
         Note:
             - All input DataArray objects must have same non-spectral
               dimensions as SpecArray.
+
         References:
             - Hanson, Jeffrey L., et al. "Pacific hindcast performance of three numerical 
               wave models." Journal of Atmospheric and Oceanic Technology 26.8 (2009): 1614-1633.
@@ -607,7 +608,8 @@ class SpecArray(object):
 
         # Slice each possible 2D, freq-dir array out of the full data array
         slice_ids = {dim: range(self._obj[dim].size) for dim in self._non_spec_dims}
-        for slice_dict in self._product(slice_ids):
+        from tqdm import tqdm
+        for slice_dict in tqdm(self._product(slice_ids)):
             specarr = self._obj[slice_dict]
             if nearest:
                 slice_dict_nearest = {key: self._obj[key][val].values for key, val in slice_dict.items()}
@@ -625,6 +627,127 @@ class SpecArray(object):
 
             spectrum = specarr.values
             part_array = specpart.partition(spectrum)
+            part_array_max = part_array.max()
+
+            #TODO: join the two loops in a while loop  
+            # Assign new partition if multiple valleys and satisfying some conditions
+            for part in range(1, part_array_max+1):
+                part_spec = np.where(part_array == part, spectrum, 0.) # Current partition
+
+                imax, imin = self._inflection(part_spec, dfres=0.01, fmin=0.05)
+                if len(imin) > 0:
+                    part_spec[imin[0].squeeze():, :] = 0
+                    newpart = part_spec > 0
+                    if newpart.sum() > 20:
+                        part_array_max += 1
+                        part_array[newpart] = part_array_max
+
+            # Group sea partitions and sort swells by hs
+            swell_hs_parts = np.zeros(part_array_max+1) # +1 because of sea
+            for part in range(1, part_array_max+1):                
+                part_spec = np.where(part_array == part, spectrum, 0.) # Current partition
+                W = part_spec[windbool].sum() / part_spec.sum()
+                if W > wscut:
+                    part_array[part_array == part] = 0
+                    swell_hs_parts[part] = 0 # not really needed
+                else:
+                    swell_hs_parts[part] = hs(part_spec, freqs, dirs)
+            sortedparts = np.flipud(swell_hs_parts[1:].argsort()+1)
+            num_swells = min(max_swells, sum(swell_hs_parts[1:] > hs_min))
+            parts = np.concatenate(([0], sortedparts[:num_swells]))
+            # Extend partitions list if any extra one has been detected
+            for dummy in range(1 + num_swells - len(all_parts)):
+                all_parts.append(0 * self._obj)
+
+            for ind, part in enumerate(parts):
+                all_parts[ind][slice_dict] = np.where(
+                    part_array == part, spectrum, 0.)
+
+        # Concatenate partitions along new axis
+        part_coord = xr.DataArray(data=range(len(all_parts)),
+                                  coords={'part': range(len(all_parts))},
+                                  dims=('part',),
+                                  name='part',
+                                  attrs=OrderedDict((('standard_name', 'spectral_partition_number'), ('units', '')))
+                                  )
+        return xr.concat(all_parts, dim=part_coord)
+
+    def partition_new(self, wsp_darr, wdir_darr, dep_darr, agefac=1.7,
+                      wscut=0.3333, hs_min=0.001, nearest=False, max_swells=5):
+        """Partition wave spectra using WW3 watershed algorithm.
+
+        Args:
+            - wsp_darr (DataArray): wind speed (m/s).
+            - wdir_darr (DataArray): Wind direction (degree).
+            - dep_darr (DataArray): Water depth (m).
+            - agefac (float): Age factor.
+            - wscut (float): Wind speed cutoff.
+            - hs_min (float): minimum Hs for assigning swell partition.
+            - nearest (bool): if True, wsp, wdir and dep are allowed to be taken from the.
+              nearest point if not matching positions in SpecArray (slower).
+            - max_swells: maximum number of swells to extract
+
+        Returns:
+            - part_spec (SpecArray): partitioned spectra with one extra dimension
+              representig partition number.
+
+        Note:
+            - All input DataArray objects must have same non-spectral
+              dimensions as SpecArray.
+
+        References:
+            - Hanson, Jeffrey L., et al. "Pacific hindcast performance of three numerical 
+              wave models." Journal of Atmospheric and Oceanic Technology 26.8 (2009): 1614-1633.
+        
+        TODO:
+            - We currently loop through each spectrum to calculate the partitions which
+              is slow. Ideally we should handle the problem in a multi-dimensional way.
+
+        """
+        # Assert spectral dims are present in spectra and non-spectral dims are present in winds and depths
+        assert attrs.FREQNAME in self._obj.dims and attrs.DIRNAME in self._obj.dims, ('partition requires E(freq,dir) but freq|dir '
+            'dimensions not in SpecArray dimensions (%s)' % (self._obj.dims))
+        for darr in (wsp_darr, wdir_darr, dep_darr):
+            # Conditional below aims at allowing wsp, wdir, dep to be DataArrays within the SpecArray. not working yet
+            if isinstance(darr, str):
+                darr = getattr(self, darr)
+            assert set(darr.dims) == self._non_spec_dims, ('%s dimensions (%s) need matching non-spectral dimensions '
+                'in SpecArray (%s) for consistent slicing' % (darr.name, set(darr.dims), self._non_spec_dims))
+
+        # from wavespectra.specpart import specpart
+        from wavespectra.core.watershed import spec_partition
+
+        # Initialise output - one SpecArray for each partition
+        all_parts = [0 * self._obj]
+        
+        # Predefine these for speed
+        dirs = self.dir.values
+        freqs = self.freq.values
+        ndir = len(dirs)
+        nfreq = len(freqs)
+
+        # Slice each possible 2D, freq-dir array out of the full data array
+        slice_ids = {dim: range(self._obj[dim].size) for dim in self._non_spec_dims}
+        from tqdm import tqdm
+        for slice_dict in tqdm(self._product(slice_ids)):
+            specarr = self._obj[slice_dict]
+            if nearest:
+                slice_dict_nearest = {key: self._obj[key][val].values for key, val in slice_dict.items()}
+                wsp = float(wsp_darr.sel(method='nearest', **slice_dict_nearest))
+                wdir = float(wdir_darr.sel(method='nearest', **slice_dict_nearest))
+                dep = float(dep_darr.sel(method='nearest', **slice_dict_nearest))
+            else:
+                wsp = float(wsp_darr[slice_dict])
+                wdir = float(wdir_darr[slice_dict])
+                dep = float(dep_darr[slice_dict])
+
+            Up = agefac * wsp * np.cos(D2R*(dirs - wdir))
+            windbool = np.tile(Up, (nfreq, 1)) > np.tile(
+                self.celerity(dep, freqs)[:, _], (1, ndir))
+
+            spectrum = specarr.values
+            # part_array = specpart.partition(spectrum)
+            part_array = spec_partition(spectrum, ihmax=200)
             part_array_max = part_array.max()
 
             #TODO: join the two loops in a while loop  
@@ -758,3 +881,22 @@ def hs(spec, freqs, dirs, tail=True):
     if tail and freqs[-1] > 0.333:
         Etot += 0.25 * E[-1] * freqs[-1]
     return 4. * np.sqrt(Etot)
+
+if __name__ == "__main__":
+    import datetime
+    from wavespectra import read_ww3
+
+    print('...Opening netcdf file...')
+    itimes = range(10)
+    ds = read_ww3('/data/ww3/ec_glob-st4/ww320180806_00z/spec20180806T00_spec.nc').isel(time=itimes).load()
+    print('...Processing {} sites, {} times...'.format(ds.site.size, len(itimes)))
+
+    t0 = datetime.datetime.now()
+    part_old = ds.spec.partition(ds.wspd, ds.wdir, ds.dpt)
+    elapsed_1 = datetime.datetime.now() - t0
+    print('Elapsed time fortran: {}s'.format(elapsed_1.total_seconds()))
+
+    t0 = datetime.datetime.now()
+    part_new = ds.spec.partition_new(ds.wspd, ds.wdir, ds.dpt)
+    elapsed_2 = datetime.datetime.now() - t0
+    print('Elapsed time python: {}s'.format(elapsed_2.total_seconds()))
