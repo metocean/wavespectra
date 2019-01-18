@@ -1,7 +1,6 @@
 """Read Native SWAN netCDF spectra files."""
 import xarray as xr
 import numpy as np
-import dask.array as da
 
 from wavespectra.specdataset import SpecDataset
 from wavespectra.core.attributes import attrs, set_spec_attributes
