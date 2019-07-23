@@ -2,6 +2,11 @@ wavespectra
 ===========
 Python library for ocean wave spectra.
 
+.. image:: https://travis-ci.org/rafa-guedes/wavespectra.svg?branch=master
+    :target: https://travis-ci.org/rafa-guedes/wavespectra
+.. image:: https://img.shields.io/pypi/v/wavespectra.svg
+    :target: https://pypi.org/project/wavespectra/
+
 Main contents:
 --------------
 - SpecArray_: extends xarray's `DataArray`_ with methods to manipulate wave spectra and calculate spectral statistics.
