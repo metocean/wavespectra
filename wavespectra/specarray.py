@@ -558,8 +558,8 @@ class SpecArray(object):
         else:
             return 1.56 / self.freq**2
 
-    def partition(self, wsp_darr, wdir_darr, dep_darr, agefac=1.7,
-                  wscut=0.3333, hs_min=0.001, nearest=False, max_swells=5):
+    def partition(self, wsp_darr, wdir_darr, dep_darr, agefac=1.7, wscut=0.3333,
+                  hs_min=0.001, nearest=False, max_swells=5, fortran_code=True):
         """Partition wave spectra using WW3 watershed algorithm.
 
         Args:
@@ -571,7 +571,8 @@ class SpecArray(object):
             - hs_min (float): minimum Hs for assigning swell partition.
             - nearest (bool): if True, wsp, wdir and dep are allowed to be taken from the.
               nearest point if not matching positions in SpecArray (slower).
-            - max_swells: maximum number of swells to extract
+            - max_swells (int): maximum number of swells to extract
+            - fortran_code (bool): use fortran partition code or (~30x slower) pure python
 
         Returns:
             - part_spec (SpecArray): partitioned spectra with one extra dimension
@@ -599,7 +600,10 @@ class SpecArray(object):
             assert set(darr.dims) == self._non_spec_dims, ('%s dimensions (%s) need matching non-spectral dimensions '
                 'in SpecArray (%s) for consistent slicing' % (darr.name, set(darr.dims), self._non_spec_dims))
 
-        from wavespectra.specpart import specpart
+        if fortran_code:
+            from wavespectra.specpart import specpart
+        else:
+            from wavespectra.core import specpartpy as specpart
 
         # Initialise output - one SpecArray for each partition
         all_parts = [0 * self._obj.load() for i in range(1 + max_swells)]
