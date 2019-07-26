@@ -7,7 +7,7 @@
 
 __version__ = '3.4'
 __author__ = 'MetOcean Solutions'
-__contact__ = 'r.guedes@metocean.co.nz'
+__contact__ = 'r.guedes@oceanum.science'
 __url__ = 'http://github.com/metocean/wavespectra'
 __description__ = 'Ocean wave spectra tools'
 __keywords__ = 'wave spectra ocean xarray statistics analysis'
