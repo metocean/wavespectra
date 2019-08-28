@@ -89,7 +89,7 @@ class SpecDataset(object):
 if __name__ == '__main__':
     from wavespectra.input.swan import read_swan
     here = os.path.dirname(os.path.abspath(__file__))
-    ds = read_swan(os.path.join(here, '../tests/swanfile.spec'))
+    ds = read_swan(os.path.join(here, '../tests/sample_files/swanfile.spec'))
     # ds.spec.to_octopus('/tmp/test.oct')
     # ds.spec.to_swan('/tmp/test.swn')
     # ds.spec.to_netcdf('/tmp/test.nc')
