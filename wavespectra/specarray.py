@@ -232,7 +232,7 @@ class SpecArray(object):
             return ""
 
     @property
-    def plot(self) -> _PlotMethods:
+    def plot(self):
         """Access plotting functions.
         >>> d = DataArray([[1, 2], [3, 4]])
         For convenience just call this directly

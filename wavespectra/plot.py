@@ -19,16 +19,22 @@ import matplotlib.pyplot as plt
 from matplotlib.projections import PolarAxes
 
 import xarray as xr
-from xarray.plot.facetgrid import _easy_facetgrid
+try:
+    from xarray.plot.facetgrid import _easy_facetgrid
+    from xarray.plot.utils import (
+        _add_colorbar,
+        _ensure_plottable,
+        _infer_interval_breaks,
+        _infer_xy_labels,
+        _process_cmap_cbar_kwargs,
+        _rescale_imshow_rgb,
+        _resolve_intervals_2dplot,
+        _update_axes,
+    )
+except ImportError:
+    warnings.warn('Limited plot capabilities with python2 compatible xarray')
+
 from xarray.plot.utils import (
-    _add_colorbar,
-    _ensure_plottable,
-    _infer_interval_breaks,
-    _infer_xy_labels,
-    _process_cmap_cbar_kwargs,
-    _rescale_imshow_rgb,
-    _resolve_intervals_2dplot,
-    _update_axes,
     import_matplotlib_pyplot,
     label_from_attrs,
 )
