@@ -5,6 +5,7 @@ import re
 import sys
 import xarray as xr
 import six
+import warnings
 
 from wavespectra.core.attributes import attrs
 from wavespectra.specarray import SpecArray
@@ -37,6 +38,7 @@ class SpecDataset(object):
     def __init__(self, xarray_dset):
         self.dset = xarray_dset
         self._wrapper()
+        self._load_defaults()
         self.supported_dims = [attrs.TIMENAME, attrs.SITENAME, attrs.LATNAME,
                                attrs.LONNAME, attrs.FREQNAME, attrs.DIRNAME]
 
@@ -59,6 +61,20 @@ class SpecDataset(object):
             if not method_name.startswith('_'):
                 method = getattr(self.dset[attrs.SPECNAME].spec, method_name)
                 setattr(self, method_name, method)
+
+    def _load_defaults(self):
+        """Load wind and depth values as defaults for the partition method.
+        Allows runnig ds.spec.partition() directly or with keyword args.
+        """
+        try:
+            assert self.partition.__code__.co_varnames[1:4] == ("wsp_darr","wdir_darr","dep_darr")
+            self.partition.__func__.__defaults__ = (
+                self.dset[attrs["WSPDNAME"]],
+                self.dset[attrs["WDIRNAME"]],
+                self.dset[attrs["DEPNAME"]],
+            ) + self.partition.__func__.__defaults__[3:]
+        except:
+            warnings.warn("Cannot load defaults for partition algorithm")
 
     def _check_and_stack_dims(self):
         """Ensure dimensions are suitable for dumping in some ascii formats.

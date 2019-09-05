@@ -555,7 +555,7 @@ class SpecArray(object):
         else:
             return 1.56 / self.freq**2
 
-    def partition(self, wsp_darr, wdir_darr, dep_darr, agefac=1.7, wscut=0.3333,
+    def partition(self, wsp_darr=None, wdir_darr=None, dep_darr=None, agefac=1.7, wscut=0.3333,
                   hs_min=0.001, nearest=False, max_swells=5, fortran_code=True):
         """Partition wave spectra using WW3 watershed algorithm.
 
