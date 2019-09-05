@@ -1,6 +1,6 @@
 """Spectra object based on DataArray to calculate spectral statistics.
 
-Reference:
+References:
     - Cartwright and Longuet-Higgins (1956). The Statistical Distribution of the Maxima of a Random Function,
       Proceedings of the Royal Society of London. Series A, Mathematical and Physical Sciences, 237, 212-232.
     - Holthuijsen LH (2005). Waves in oceanic and coastal waters (page 82).
@@ -30,7 +30,7 @@ except ImportError:
     warnings.warn('Cannot import sympy, install "extra" dependencies for full functionality')
 
 # TODO: dimension renaming and sorting in __init__ are not producing intended effect. They correctly modify xarray_obj
-#       as defined in xarray.spec._obj but the actual xarray is not modified - and they loose their direct association
+#       as defined in xarray.spec._obj but the actual xarray is not modified - and they lose their direct association
 
 _ = np.newaxis
 
@@ -43,7 +43,7 @@ class SpecArray(object):
         # # Rename spectra coordinates if not 'freq' and/or 'dir'
         # if 'dim_map' is not None:
         #     xarray_obj = xarray_obj.rename(dim_map)
-        
+
         # # Ensure frequencies and directions are sorted
         # for dim in [attrs.FREQNAME, attrs.DIRNAME]:
         #     if dim in xarray_obj.dims and not self._strictly_increasing(xarray_obj[dim].values):
@@ -52,7 +52,7 @@ class SpecArray(object):
         self._obj = xarray_obj
         self._non_spec_dims = set(self._obj.dims).difference((attrs.FREQNAME, attrs.DIRNAME))
 
-        # Create attributes for accessor 
+        # Create attributes for accessor
         self.freq = xarray_obj.freq
         self.dir = xarray_obj.dir if attrs.DIRNAME in xarray_obj.dims else None
 
@@ -61,14 +61,11 @@ class SpecArray(object):
 
         # df darray with freq dimension - may replace above one in the future
         if len(self.freq) > 1:
-            self.dfarr = xr.DataArray(data=np.hstack((1.0, np.full(len(self.freq)-2, 0.5), 1.0)) *
-                                           (np.hstack((0.0, np.diff(self.freq))) + np.hstack((np.diff(self.freq), 0.0))),
-                                      coords={attrs.FREQNAME: self.freq},
-                                      dims=(attrs.FREQNAME))
+            dfarr_data = np.hstack((1.0, np.full(len(self.freq)-2, 0.5), 1.0)) * (
+                np.hstack((0.0, np.diff(self.freq))) + np.hstack((np.diff(self.freq), 0.0)))
         else:
-            self.dfarr = xr.DataArray(data=np.array((1.0,)),
-                                       coords={attrs.FREQNAME: self.freq},
-                                       dims=(attrs.FREQNAME))
+            dfarr_data = np.array((1.0,))
+        self.dfarr = xr.DataArray(data=dfarr_data, coords={attrs.FREQNAME: self.freq}, dims=(attrs.FREQNAME))
 
     def __repr__(self):
         return re.sub(r'<([^\s]+)', '<%s' % (self.__class__.__name__), str(self._obj))
@@ -235,7 +232,7 @@ class SpecArray(object):
 
         # Slice frequencies
         other = self._obj.sel(freq=slice(fmin, fmax))
-        
+
         # Slice directions
         if attrs.DIRNAME in other.dims and (dmin or dmax):
             other = self._obj.sortby([attrs.DIRNAME]).sel(dir=slice(dmin, dmax))
@@ -273,7 +270,7 @@ class SpecArray(object):
             ('units', self._units(self._my_name())))
         ))
         return hs.rename(self._my_name())
-    
+
     def hmax(self):
         """Maximum wave height Hmax.
 
@@ -288,7 +285,7 @@ class SpecArray(object):
         if attrs.TIMENAME in self._obj.coords and self._obj.time.size > 1:
             dt = np.diff(self._obj.time).astype('timedelta64[s]').mean()
             N = (dt.astype(float)/self.tm02()).round() # N is the number of waves in a sea state
-            k = np.sqrt(0.5*np.log(N)) 
+            k = np.sqrt(0.5*np.log(N))
         else:
             k = 1.86  # assumes N = 3*3600 / 10.8
         hmax = k * self.hs()
@@ -558,7 +555,7 @@ class SpecArray(object):
         else:
             return 1.56 / self.freq**2
 
-    def partition(self, wsp_darr, wdir_darr, dep_darr, agefac=1.7, wscut=0.3333,
+    def partition(self, wsp_darr=None, wdir_darr=None, dep_darr=None, agefac=1.7, wscut=0.3333,
                   hs_min=0.001, nearest=False, max_swells=5, fortran_code=True):
         """Partition wave spectra using WW3 watershed algorithm.
 
@@ -584,7 +581,7 @@ class SpecArray(object):
         References:
             - Hanson, Jeffrey L., et al. "Pacific hindcast performance of three numerical 
               wave models." Journal of Atmospheric and Oceanic Technology 26.8 (2009): 1614-1633.
-        
+
         TODO:
             - We currently loop through each spectrum to calculate the partitions which
               is slow. Ideally we should handle the problem in a multi-dimensional way.
