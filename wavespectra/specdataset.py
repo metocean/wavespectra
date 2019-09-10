@@ -124,6 +124,42 @@ class SpecDataset(object):
 
         return dset
 
+    def sel_lonlat(self, lon, lat, method=None):
+        """Select site based on longitude and latitude.
+
+        Args:
+            - lon (float): longitude of the site.
+            - lat (float): latitude of the site.
+            - method (string): Method to use for inexact matches (None or 'nearest').
+
+        Returns:
+            - Dataset for the site defined by lon and lat.
+        """
+        if method not in (None, "nearest"):
+            raise ValueError(
+                "Invalid method. Expecting None or nearest. Got {}".format(method)
+            )
+        lons = self.dset[attrs.LONNAME].values
+        lats = self.dset[attrs.LATNAME].values
+        xdist0 = abs(lons % 360 - lon % 360)
+        xdist = xr.ufuncs.minimum(xdist0, 360 - xdist0)
+        ydist = abs(lats - lat)
+        dist2 = xdist ** 2 + ydist ** 2
+        isite = [int(dist2.argmin())]
+        if (method is None) and (dist2[isite] > 0):
+            raise ValueError(
+                "lon={:f}, lat={:f} not found. Use method='nearest' to get lon={:f}, lat={:f}".format(
+                    lon, lat, lons[isite][0], lats[isite][0]
+                )
+            )
+        indexersdict = {
+            k: isite
+            for k in {attrs.LONNAME, attrs.LATNAME, attrs.SITENAME}.intersection(
+                self.dset.dims
+            )
+        }
+        return self.dset.isel(indexersdict)
+
 
 if __name__ == "__main__":
     from wavespectra.input.swan import read_swan
