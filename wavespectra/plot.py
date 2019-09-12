@@ -19,19 +19,23 @@ import matplotlib.pyplot as plt
 from matplotlib.projections import PolarAxes
 
 import xarray as xr
-from xarray.plot.facetgrid import _easy_facetgrid
-from xarray.plot.utils import (
-    _add_colorbar,
-    _ensure_plottable,
-    _infer_interval_breaks,
-    _infer_xy_labels,
-    _process_cmap_cbar_kwargs,
-    _rescale_imshow_rgb,
-    _resolve_intervals_2dplot,
-    _update_axes,
-    import_matplotlib_pyplot,
-    label_from_attrs,
-)
+
+try:
+    from xarray.plot.facetgrid import _easy_facetgrid
+    from xarray.plot.utils import (
+        _add_colorbar,
+        _ensure_plottable,
+        _infer_interval_breaks,
+        _infer_xy_labels,
+        _process_cmap_cbar_kwargs,
+        _rescale_imshow_rgb,
+        _resolve_intervals_2dplot,
+        _update_axes,
+    )
+except ImportError:
+    warnings.warn("Limited plot capabilities with python2 compatible xarray")
+
+from xarray.plot.utils import import_matplotlib_pyplot, label_from_attrs
 
 from wavespectra.core.attributes import attrs
 
@@ -40,9 +44,9 @@ def get_axis(figsize, size, aspect, ax, subplot_kw={}):
     """Returns axis instance to use with _plot2d."""
     if figsize is not None:
         if ax is not None:
-            raise ValueError("cannot provide both `figsize` and " "`ax` arguments")
+            raise ValueError("cannot provide both `figsize` and `ax` arguments")
         if size is not None:
-            raise ValueError("cannot provide both `figsize` and " "`size` arguments")
+            raise ValueError("cannot provide both `figsize` and `size` arguments")
         _, ax = plt.subplots(figsize=figsize, subplot_kw=subplot_kw)
     elif size is not None:
         if ax is not None:
@@ -62,7 +66,7 @@ def get_axis(figsize, size, aspect, ax, subplot_kw={}):
 
 
 def _transpose_spectral_coordinates(darray):
-    """Swap ordem of frequency and direction coordinates in dataarray."""
+    """Swap order of frequency and direction coordinates in dataarray."""
     dims = list(darray.dims)
     ifreq = dims.index(attrs.FREQNAME)
     idir = dims.index(attrs.DIRNAME)
@@ -145,11 +149,7 @@ def plot(
     """
     darray = darray.squeeze().compute()
 
-    plot_dims = set(darray.dims)
-    plot_dims.discard(row)
-    plot_dims.discard(col)
-    plot_dims.discard(hue)
-
+    plot_dims = set(darray.dims) - set([row, col, hue])
     ndims = len(plot_dims)
 
     error_msg = (
@@ -216,9 +216,9 @@ def _plot2d(plotfunc):
         Coordinate for y axis. If None use darray.dims[0]
     projection : string, optional
         Axis projection.
-    show_radius_label: Bolean, optional
+    show_radius_label: Boolean, optional
         Display the radius labels
-    show_direction_label: Bolean, optional
+    show_direction_label: Boolean, optional
         Display the direction labels
     as_period : Boolean, optional
         Plot spectra as period instead of frequency.
@@ -452,7 +452,7 @@ def _plot2d(plotfunc):
         # xlab may be the name of a coord, we have to check for dim names
         if imshow_rgb:
             # For RGB[A] images, matplotlib requires the color dimension
-            # to be last.  In Xarray the order should be unimportant, so
+            # to be last. In Xarray the order should be unimportant, so
             # we transpose to (y, x, color) to make this work.
             yx_dims = (ylab, xlab)
             dims = yx_dims + tuple(d for d in darray.dims if d not in yx_dims)
@@ -534,7 +534,7 @@ def _plot2d(plotfunc):
         elif cbar_ax is not None or cbar_kwargs:
             # inform the user about keywords which aren't used
             raise ValueError(
-                "cbar_ax and cbar_kwargs can't be used with " "add_colorbar=False."
+                "cbar_ax and cbar_kwargs can't be used with add_colorbar=False."
             )
 
         # origin kwarg overrides yincrease
@@ -719,9 +719,11 @@ def pcolormesh(
 
     return primitive
 
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from wavespectra import read_swan
+
     dset = read_swan("../tests/sample_files/swanfile.spec", as_site=True)
     dset.isel(site=0).efth.spec.plot(col="time", col_wrap=3)
     plt.show()
