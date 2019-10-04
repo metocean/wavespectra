@@ -774,6 +774,7 @@ class SpecArray(object):
         # Predefine these for speed
         dirs = self.dir.values
         freqs = self.freq.values
+        dfarr = self.dfarr.values
         ndir = len(dirs)
         nfreq = len(freqs)
         wsp_darr.load()
@@ -827,7 +828,7 @@ class SpecArray(object):
                         partitions_hs_swell = np.append(partitions_hs_swell, 0)
 
                 # Group sea partitions and sort swells by hs
-                W = part_spec[windbool].sum() / part_spec.sum()
+                W = np.dot((part_spec*windbool).sum(1), dfarr) / np.dot(part_spec.sum(1), dfarr)
                 if W > wscut:
                     part_array[part_array == ipeak] = 0  # mark as windsea
                 else:
