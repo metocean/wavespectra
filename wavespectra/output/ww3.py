@@ -12,4 +12,3 @@ def to_ww3(self, filename):
 
     """
     raise NotImplementedError("Cannot write to native WW3 format yet")
-

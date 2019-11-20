@@ -1,7 +1,7 @@
 """SWAN ASCII output plugin."""
 from wavespectra.core.attributes import attrs
-from wavespectra.core.swan import SwanSpecFile
 from wavespectra.core.misc import to_datetime
+from wavespectra.core.swan import SwanSpecFile
 
 
 def to_swan(

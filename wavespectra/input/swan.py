@@ -7,20 +7,21 @@ Functions:
     read_swanow: Read SWAN nowcast from fileglob, keep overlapping dates from most recent files
 
 """
-import os
-import glob
 import datetime
+import glob
+import os
 import warnings
+from collections import OrderedDict
+
+import numpy as np
 import pandas as pd
 import xarray as xr
-import numpy as np
-from collections import OrderedDict
 from sortedcontainers import SortedDict
 
-from wavespectra.specdataset import SpecDataset
-from wavespectra.core.swan import SwanSpecFile, read_tab
 from wavespectra.core.attributes import attrs, set_spec_attributes
-from wavespectra.core.misc import uv_to_spddir, interp_spec, flatten_list
+from wavespectra.core.misc import flatten_list, interp_spec, uv_to_spddir
+from wavespectra.core.swan import SwanSpecFile, read_tab
+from wavespectra.specdataset import SpecDataset
 
 
 def read_swan(filename, dirorder=True, as_site=None):

@@ -1,8 +1,8 @@
 """Read spectra from dictionary."""
 import xarray as xr
 
-from wavespectra.specdataset import SpecDataset
 from wavespectra.core.attributes import set_spec_attributes
+from wavespectra.specdataset import SpecDataset
 
 
 def read_dictionary(spcdict):

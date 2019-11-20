@@ -1,9 +1,9 @@
 """Read Native WW3 spectra files."""
-import xarray as xr
 import numpy as np
+import xarray as xr
 
-from wavespectra.specdataset import SpecDataset
 from wavespectra.core.attributes import attrs, set_spec_attributes
+from wavespectra.specdataset import SpecDataset
 
 D2R = np.pi / 180
 

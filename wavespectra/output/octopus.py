@@ -145,4 +145,3 @@ def to_octopus(self, filename, site_id="spec", fcut=0.125, missing_val=-99999):
                 f.write(specdump)
                 f.write(("fSpec," + fmt + "\n").format(*ds["fSpec"].squeeze().values))
                 f.write(("den," + fmt + "\n\n").format(*ds["momd"].squeeze().values))
-

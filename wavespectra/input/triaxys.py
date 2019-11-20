@@ -1,15 +1,16 @@
-import os
-import glob
 import copy
 import datetime
+import glob
+import os
 from collections import OrderedDict
-from dateutil import parser
+
 import numpy as np
 import xarray as xr
+from dateutil import parser
 
-from wavespectra.specdataset import SpecDataset
 from wavespectra.core.attributes import attrs, set_spec_attributes
 from wavespectra.core.misc import interp_spec
+from wavespectra.specdataset import SpecDataset
 
 
 def read_triaxys(filename_or_fileglob, toff=0):

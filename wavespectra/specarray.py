@@ -8,20 +8,21 @@ References:
       Journal of Geophysical Research, 80, 2688-2694, doi: 10.1029/JC080i018p02688.
 
 """
+import copy
+import inspect
 import re
+import types
+import warnings
 from collections import OrderedDict
 from datetime import datetime
+from itertools import product
+
 import numpy as np
 import xarray as xr
-import types
-import copy
-from itertools import product
-import inspect
-import warnings
 
-from wavespectra.plot import _PlotMethods
 from wavespectra.core.attributes import attrs
-from wavespectra.core.misc import GAMMA, D2R, R2D
+from wavespectra.core.misc import D2R, GAMMA, R2D
+from wavespectra.plot import _PlotMethods
 
 try:
     from sympy import Symbol
@@ -73,10 +74,8 @@ class SpecArray(object):
 
         # df darray with freq dimension - may replace above one in the future
         if len(self.freq) > 1:
-            dfarr_data = np.hstack((1.0, np.full(len(self.freq) - 2, 0.5), 1.0)) * (
-                np.hstack((0.0, np.diff(self.freq)))
-                + np.hstack((np.diff(self.freq), 0.0))
-            )
+            df = np.diff(self.freq)
+            dfarr_data = 0.5 * (np.hstack((df[0], df)) + np.hstack((df, df[-1])))
         else:
             dfarr_data = np.array((1.0,))
 
@@ -953,4 +952,3 @@ def hs(spec, freqs, dirs, tail=True):
     if tail and freqs[-1] > 0.333:
         Etot += 0.25 * E[-1] * freqs[-1]
     return 4.0 * np.sqrt(Etot)
-

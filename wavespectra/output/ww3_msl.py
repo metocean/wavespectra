@@ -12,4 +12,3 @@ def to_ww3_msl(self, filename):
 
     """
     raise NotImplementedError("Cannot write to MSL WW3 format yet")
-

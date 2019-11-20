@@ -1,11 +1,11 @@
 """Read Native WWM netCDF spectra files."""
-import xarray as xr
-import numpy as np
 import dask.array as da
+import numpy as np
+import xarray as xr
 
-from wavespectra.specdataset import SpecDataset
 from wavespectra.core.attributes import attrs, set_spec_attributes
 from wavespectra.core.misc import uv_to_spddir
+from wavespectra.specdataset import SpecDataset
 
 R2D = 180 / np.pi
 

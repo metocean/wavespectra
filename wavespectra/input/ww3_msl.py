@@ -1,9 +1,9 @@
 """Read customised MetOcean Solutions WW3 spectra files."""
-import xarray as xr
 import numpy as np
+import xarray as xr
 
-from wavespectra.specdataset import SpecDataset
 from wavespectra.core.attributes import attrs, set_spec_attributes
+from wavespectra.specdataset import SpecDataset
 
 
 def read_ww3_msl(filename_or_fileglob, chunks={}):

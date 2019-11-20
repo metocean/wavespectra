@@ -1,10 +1,11 @@
 """Read and write swan spectra files"""
+import datetime
+import gzip
 import os
 import re
-import gzip
-import datetime
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 from wavespectra.core.attributes import attrs
 from wavespectra.core.misc import to_nautical

@@ -1,11 +1,12 @@
 """Wrapper around the xarray dataset."""
-import types
 import os
 import re
 import sys
-import xarray as xr
-import six
+import types
 import warnings
+
+import six
+import xarray as xr
 
 from wavespectra.core.attributes import attrs
 from wavespectra.specarray import SpecArray
