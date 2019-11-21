@@ -272,7 +272,7 @@ class SpecArray(object):
 
         """
         assert fmax > fmin if fmax else True, "fmax needs to be greater than fmin"
-        assert dmax > dmin if dmax else True, "fmax needs to be greater than fmin"
+        assert dmax > dmin if dmax else True, "dmax needs to be greater than dmin"
 
         # Slice frequencies
         other = self._obj.sel(freq=slice(fmin, fmax))
