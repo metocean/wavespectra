@@ -84,3 +84,20 @@ def check_coordinates(param, coordinates):
                 % (coordinates[idim][0], dim)
             )
 
+
+def finite_depth(freqs, h):
+    """factors for modifiying JONSWAP spectra in shallow water (TMA spectrum)
+
+    Args:
+        freqs: frequencies
+        h: water depth
+
+    Returns:
+        phi: factors between 0 and 1 for each frequency
+    """
+    w = 2 * np.pi * freqs
+    whg = w * (h / 9.81) ** 0.5
+    phi = w ** 0  # filled with ones
+    phi[whg < 2] = 1 - 0.5 * (2 - whg[whg < 2]) ** 2
+    phi[whg < 1] = 0.5 * whg[whg < 1] ** 2
+    return phi
