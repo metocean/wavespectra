@@ -22,18 +22,6 @@ Where to get it
 ~~~~~~~~~~~~~~~
 The source code is currently hosted on GitHub at: https://github.com/metocean/wavespectra
 
-Binary installers for the latest released version are available at the `Python package index`_.
-
-Install from pypi
-~~~~~~~~~~~~~~~~~
-.. code:: bash
-
-   # Default install, miss some dependencies and functionality
-   pip install wavespectra
-
-   # Complete install
-   pip install wavespectra[extra]
-
 Install from sources
 ~~~~~~~~~~~~~~~~~~~~
 Install requirements. Navigate to the base root of wavespectra_ and execute:
@@ -156,7 +144,7 @@ Define and plot spectra history from example SWAN_ spectra file:
 
    from wavespectra import read_swan
 
-   dset = read_swan('/source/wavespectra/tests/manus.spec')
+   dset = read_swan('/source/wavespectra/tests/sample_files/swanfile.spec')
    spec_hist = dset.isel(lat=0, lon=0).sel(freq=slice(0.05,0.2)).spec.oned().T
    spec_hist.plot.contourf(levels=10)
 
