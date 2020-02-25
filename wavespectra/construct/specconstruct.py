@@ -11,11 +11,11 @@ def prepare_reconstruction(spec_info, base_dset=None):
     """ Load parameters for spectral reconstruction
 
     Args:
-        spec_info: dictionary for updating reconstruction defaults. Optionally extra variables to keep.
+        spec_info: dictionary for updating reconstruction defaults. Optionally extra variables to keep or rename.
         base_dset: path or xarray dataset object
 
     Returns:
-        ds: xarray dset with spectral parameters
+        ds: xarray dataset with parameters for spectral reconstruction
     """
     reconstruction_defaults = {  # fields of base_dset, numbers, or datarrays
         "freq": np.arange(0.04, 1.0, 0.02),
@@ -91,7 +91,7 @@ def calc_Sf(freqs, hs, fp, gamma=3.3, sigmaA=0.07, sigmaB=0.09, dpt=None, alpha=
         alpha: normalization factor
 
     Returns:
-        Sf: xarray dataarray with reconstructed spectra
+        Sf: xarray dataarray with reconstructed frequency spectra
     """
     sigma = xr.where(freqs <= fp, sigmaA, sigmaB)
     r = np.exp(-((freqs - fp) ** 2.0) / (2 * sigma ** 2 * fp ** 2))
@@ -138,6 +138,9 @@ class SpecConstruct(object):
 
     def Sf(self):
         """ Wrapper for calc_Sf
+
+        Returns:
+            Sf: xarray dataarray with reconstructed frequency spectra
         """
         dpt = self._obj.dpt if "dpt" in self._obj else None
         Sf = calc_Sf(
@@ -147,6 +150,9 @@ class SpecConstruct(object):
 
     def Dth(self):
         """ Wrapper for calc_Dth
+
+        Returns:
+            Dth: normalized directional spreading
         """
         Dth = calc_Dth(self._obj.dir, self._obj.dp, self._obj.dspr)
         return Dth
@@ -158,7 +164,7 @@ class SpecConstruct(object):
             ds: xarray dataset with reconstruction parameters
             sumdim: dimension to sum values
         Returns:
-            efth: xarray dataarray with reconstructed spectra
+            efth: xarray dataarray with reconstructed frequency-direction spectra
         """
         efth = self.Sf() * self.Dth()
         if sumdim in efth.coords:
@@ -169,7 +175,10 @@ class SpecConstruct(object):
         """ Create wavespectra dataset
         """
         # TODO: Ensure that all arrays have wavespectra compatible names
-        ds = prepare_reconstruction(spec_info, base_dset=self._obj)
+        if spec_info:
+            ds = prepare_reconstruction(spec_info, base_dset=self._obj)
+        else:
+            ds = self._obj.copy()
         ds[attrs.SPECNAME] = ds.construct.efth()
         set_spec_attributes(ds)
         return ds
