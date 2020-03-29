@@ -12,7 +12,7 @@ if plot:
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from wavespectra.construct import jonswap, ochihubble
+from wavespectra.construct import jonswap, ochihubble, specconstruct
 
 
 def integrate_2d_hs(freqs, dirs, S):
@@ -22,13 +22,27 @@ def integrate_2d_hs(freqs, dirs, S):
     return 4 * sum2 ** 0.5
 
 
+class TestSpecConstruct(object):
+    @pytest.mark.parametrize("hs, tp, dp", [(1, 10, 0), ([1, 3], [5, 12], [10, 40])])
+    def test_specconstruct_scalar(self, hs, tp, dp):
+        spec_info = {
+            "hs": hs,
+            "tp": tp,
+            "dp": dp,
+        }
+        ds1 = specconstruct.prepare_reconstruction(spec_info)
+        hs_out = ds1.construct.to_dset().spec.hs()
+        hs_in = np.linalg.norm(spec_info["hs"])
+        assert hs_out == pytest.approx(hs_in, rel=1e-3)
+
+
 class TestJonswap(object):
     def hs(self, tp, alpha, gamma=3.3, df=0.02):
         """Calculate 1D JONSWAP."""
         f = np.arange(df, 1.0, df)
         fp = 1.0 / tp
         sig = np.where(f <= fp, 0.07, 0.09)
-        r = np.exp(-(f - fp) ** 2.0 / (2 * sig ** 2 * fp ** 2))
+        r = np.exp(-((f - fp) ** 2.0) / (2 * sig ** 2 * fp ** 2))
         S = (
             0.0617
             * np.array(alpha)
