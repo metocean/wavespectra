@@ -495,8 +495,8 @@ class SpecArray(object):
         """Mean wave direction from the 1st spectral moment Dm."""
         moms, momc = self.momd(1)
         dm = np.arctan2(
-            (moms * ds.spec.dfarr).sum(dim=attrs.FREQNAME, skipna=False),
-            (momc * ds.spec.dfarr).sum(dim=attrs.FREQNAME, skipna=False),
+            (moms * self.dfarr).sum(dim=attrs.FREQNAME, skipna=False),
+            (momc * self.dfarr).sum(dim=attrs.FREQNAME, skipna=False),
         )
         dm = (270 - R2D * dm) % 360.0
         dm.attrs.update(
