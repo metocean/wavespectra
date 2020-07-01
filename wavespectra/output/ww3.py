@@ -39,12 +39,12 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
     """
     other = self.copy(deep=True)
     # Expanding lon/lat dimensions
-    other[attrs.LONNAME] = other[attrs.LONNAME].expand_dims(
-        {attrs.TIMENAME: other[attrs.TIMENAME]}
-    )
-    other[attrs.LATNAME] = other[attrs.LATNAME].expand_dims(
-        {attrs.TIMENAME: other[attrs.TIMENAME]}
-    )
+    #other[attrs.LONNAME] = other[attrs.LONNAME].expand_dims(
+    #    {attrs.TIMENAME: other[attrs.TIMENAME]}
+    #)
+    #other[attrs.LATNAME] = other[attrs.LATNAME].expand_dims(
+    #    {attrs.TIMENAME: other[attrs.TIMENAME]}
+    #)
     # Converting to radians
     other[attrs.SPECNAME] *= R2D
     # frequency bounds
