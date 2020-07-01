@@ -389,7 +389,9 @@ def sel_bbox(dset, lons, lats, tolerance=0.0, dset_lons=None, dset_lats=None):
     # Return longitudes in the convention provided
     if coords.consistent is False:
         dsout = dsout.assign({"lon": coords._swap_longitude_convention(dsout.lon)})
+#    import pdb
+#    pdb.set_trace()
 
-    dsout = dsout.assign_coords({attrs.SITENAME: np.arange(len(station_ids))})
+#    dsout = dsout.assign_coords({attrs.SITENAME: np.arange(len(station_ids))})
 
     return dsout
