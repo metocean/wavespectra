@@ -142,9 +142,9 @@ def sel_nearest(
     unique=False,
     exact=False,
     dset_lons=None,
-    dset_lats=None,
-):
-    """Select sites from nearest distance.
+    dset_lats=None):
+    """
+    Select sites from nearest distance.
 
     Args:
         dset (Dataset): Stations SpecDataset to select from.
@@ -172,13 +172,11 @@ def sel_nearest(
         closest_id, closest_dist = coords.nearest(lon, lat)
         if closest_dist > tolerance:
             raise AssertionError(
-                f"Nearest site from (lat={lat}, lon={lon}) is {closest_dist:g} "
-                f"deg away but tolerance is {tolerance:g} deg."
+                "Nearest site from (lat={}, lon={}) is {:g} deg away but tolerance is {:g} deg.".format(lat, lon, closest_dist, tolerance)
             )
         if exact and closest_dist > 0:
             raise AssertionError(
-                f"Exact match required but no site at (lat={lat}, lon={lon}), "
-                f"nearest site is {closest_dist} deg away."
+                "Exact match required but no site at (lat={}, lon={}), nearest site is {} deg away.".format(lat, lon, closest_dist)
             )
         station_ids.append(closest_id)
     if unique:
@@ -196,8 +194,7 @@ def sel_nearest(
 
 
 def sel_idw(
-    dset, lons, lats, tolerance=2.0, max_sites=4, dset_lons=None, dset_lats=None
-):
+    dset, lons, lats, tolerance=2.0, max_sites=4, dset_lons=None, dset_lats=None):
     """Select sites from inverse distance weighting.
 
     Args:
@@ -226,8 +223,7 @@ def sel_idw(
         closest_ids, closest_dist = coords.nearer(lon, lat, tolerance, max_sites)
         if len(closest_ids) == 0:
             logger.debug(
-                f"No stations within {tolerance} deg of site (lat={lat}, lon={lon}), "
-                "this site will be masked."
+                "No stations within {} deg of site (lat={}, lon={}), this site will be masked.".format(tolerance, lat, lon)
             )
         # Collect ids and factors of neighbours
         indices = []
@@ -325,8 +321,10 @@ def sel_bbox(dset, lons, lats, tolerance=0.0, dset_lons=None, dset_lats=None):
     if station_ids.size == 0:
         raise ValueError(
             "No site found within bbox defined by "
-            f"([{min(coords._lons) - tolerance}, {minlat}], "
-            f"[{max(coords._lons) + tolerance}, {maxlat}])"
+            "([{},{}], [{},{}])".format(min(coords._lons) - tolerance,
+                                        minlat,
+                                        max(coords._lons) + tolerance,
+                                        maxlat)
         )
 
     dsout = dset.isel(**{attrs.SITENAME: station_ids})
