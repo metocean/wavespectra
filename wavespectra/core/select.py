@@ -11,12 +11,14 @@ logger = logging.getLogger(__name__)
 
 class Coordinates:
     """Slicing of circular coordinates.
+
     Args:
         dset (xr.Dataset): Dataset object to slice from.
         lons (array): Longitudes to slice.
         lats (array): Latitudes to slice.
         dset_lons (array): Dataset longitudes for optimising.
         dset_lats (array): Dataset latitudes for optimising.
+
     """
 
     def __init__(self, dset, lons, lats, dset_lons=None, dset_lats=None):
@@ -80,11 +82,14 @@ class Coordinates:
 
     def distance(self, lon, lat):
         """Distance between each station in (dset_lons, dset_lats) and site (lon, lat).
+
         Args:
             lon (float): Longitude to locate from lons.
             lat (float): Latitude to locate from lats.
+
         Returns:
             List of distances between each station and site.
+
         """
         dist = np.sqrt((self.dset_lons % 360 - np.array(lon) % 360) ** 2 + (self.dset_lats - np.array(lat)) ** 2)
         dist = np.minimum(dist, 360 - dist)
@@ -94,14 +99,17 @@ class Coordinates:
 
     def nearer(self, lon, lat, tolerance=np.inf, max_sites=None):
         """Nearer stations in (dset_lons, dset_lats) to site (lon, lat).
+
         Args:
             lon (float): Longitude of of station to locate from lons.
             lat (float): Latitude of of station to locate from lats.
             tolerance (float): Maximum distance for scanning neighbours.
             max_sites (int): Maximum number of neighbours.
+
         Returns:
             Indices and distances of up to `max_sites` neighbour stations not farther from
                 `tolerance`, ordered from closer to farthest station.
+
         """
         dist = self.distance(lon, lat)
         closest_ids = np.argsort(dist)
@@ -111,11 +119,14 @@ class Coordinates:
 
     def nearest(self, lon, lat):
         """Nearest station in (dset_lons, dset_lats) to site (lon, lat).
+
             Args:
                 lon (float): Longitude to locate from lons.
                 lat (float): Latitude to locate from lats.
+
             Returns:
                 Index and distance of closest station.
+
         """
         dist = self.distance(lon, lat)
         closest_id = dist.argmin()
@@ -134,6 +145,7 @@ def sel_nearest(
     dset_lats=None,
 ):
     """Select sites from nearest distance.
+
     Args:
         dset (Dataset): Stations SpecDataset to select from.
         lons (array): Longitude of sites to interpolate spectra at.
@@ -143,12 +155,15 @@ def sel_nearest(
         exact (bool): Require exact matches.
         dset_lons (array): Longitude of stations in dset.
         dset_lats (array): Latitude of stations in dset.
+
     Returns:
         Selected SpecDataset at locations defined by (lons, lats).
+
     Note:
         Args `dset_lons`, `dset_lats` are not required but can improve performance when
             `dset` is chunked with site=1 (expensive to access station coordinates) and
             improve precision if projected coordinates are provided at high latitudes.
+
     """
     coords = Coordinates(dset, lons=lons, lats=lats, dset_lons=dset_lons, dset_lats=dset_lats)
 
@@ -184,6 +199,7 @@ def sel_idw(
     dset, lons, lats, tolerance=2.0, max_sites=4, dset_lons=None, dset_lats=None
 ):
     """Select sites from inverse distance weighting.
+
     Args:
         dset (Dataset): Stations SpecDataset to interpolate from.
         lons (array): Longitude of sites to interpolate spectra at.
@@ -192,12 +208,15 @@ def sel_idw(
         max_sites (int): Maximum number of neighbour sites to use for interpolation.
         dset_lons (array): Longitude of stations in dset.
         dset_lats (array): Latitude of stations in dset.
+
     Returns:
         Selected SpecDataset at locations defined by (lons, lats).
+
     Note:
         Args `dset_lons`, `dset_lats` are not required but can improve performance when
             `dset` is chunked with site=1 (expensive to access station coordinates) and
             improve precision if projected coordinates are provided at high latitudes.
+
     """
     coords = Coordinates(dset, lons=lons, lats=lats, dset_lons=dset_lons, dset_lats=dset_lats)
 
@@ -254,6 +273,7 @@ def sel_idw(
 
 def sel_bbox(dset, lons, lats, tolerance=0.0, dset_lons=None, dset_lats=None):
     """Select sites within bbox.
+
     Args:
         dset (Dataset): Stations SpecDataset to select from.
         lons (array): Longitude of sites to interpolate spectra at.
@@ -261,13 +281,16 @@ def sel_bbox(dset, lons, lats, tolerance=0.0, dset_lons=None, dset_lats=None):
         tolerance (float): Extend bbox extents by.
         dset_lons (array): Longitude of stations in dset.
         dset_lats (array): Latitude of stations in dset.
+
     Returns:
         Selected SpecDataset within bbox defined by:
             lower-left=[min(lons), min(lats)], upper-right=[max(lons), max(lats)].
+
     Note:
         Args `dset_lons`, `dset_lats` are not required but can improve performance when
             `dset` is chunked with site=1 (expensive to access station coordinates) and
             improve precision if projected coordinates are provided at high latitudes.
+
     """
     coords = Coordinates(dset, lons=lons, lats=lats, dset_lons=dset_lons, dset_lats=dset_lats)
 
@@ -312,84 +335,6 @@ def sel_bbox(dset, lons, lats, tolerance=0.0, dset_lons=None, dset_lats=None):
     if coords.consistent is False:
         dsout = dsout.assign({"lon": coords._swap_longitude_convention(dsout.lon)})
 
-    dsout = dsout.assign_coords({attrs.SITENAME: np.arange(len(station_ids))})
-
-    return dsout
-
-
-
-
-"""Interpolate stations."""
-import numpy as np
-import xarray as xr
-import logging
-
-from wavespectra.core.attributes import attrs, set_spec_attributes
-
-
-logger = logging.getLogger(__name__)
-
-
-def sel_bbox(dset, lons, lats, tolerance=0.0, dset_lons=None, dset_lats=None):
-    """Select sites within bbox.
-    Args:
-        dset (Dataset): Stations SpecDataset to select from.
-        lons (array): Longitude of sites to interpolate spectra at.
-        lats (array): Latitude of sites to interpolate spectra at.
-        tolerance (float): Extend bbox extents by.
-        dset_lons (array): Longitude of stations in dset.
-        dset_lats (array): Latitude of stations in dset.
-    Returns:
-        Selected SpecDataset within bbox defined by:
-            lower-left=[min(lons), min(lats)], upper-right=[max(lons), max(lats)].
-    Note:
-        Args `dset_lons`, `dset_lats` are not required but can improve performance when
-            `dset` is chunked with site=1 (expensive to access station coordinates) and
-            improve precision if projected coordinates are provided at high latitudes.
-    """
-    coords = Coordinates(dset, lons=lons, lats=lats, dset_lons=dset_lons, dset_lats=dset_lats)
-
-    minlon = min(coords.lons) - tolerance
-    minlat = min(coords.lats) - tolerance
-    maxlon = max(coords.lons) + tolerance
-    maxlat = max(coords.lats) + tolerance
-    if not (coords._is_360(coords.dset_lons) and not coords.consistent):
-        station_ids = np.where(
-            (coords.dset_lons >= minlon)
-            & (coords.dset_lats >= minlat)
-            & (coords.dset_lons <= maxlon)
-            & (coords.dset_lats <= maxlat)
-        )[0]
-    else:
-        station_ids = np.where(
-            (coords.dset_lons >= maxlon)
-            & (coords.dset_lats >= minlat)
-            & (coords.dset_lons <= 360)
-            & (coords.dset_lats <= maxlat)
-        )[0]
-        station_ids = np.append(
-            station_ids,
-            np.where(
-                (coords.dset_lons >= 0)
-                & (coords.dset_lats >= minlat)
-                & (coords.dset_lons <= minlon)
-                & (coords.dset_lats <= maxlat)
-            )[0]
-        )
-
-    if station_ids.size == 0:
-        raise ValueError(
-            "No site found within bbox defined by "
-            f"([{min(coords._lons) - tolerance}, {minlat}], "
-            f"[{max(coords._lons) + tolerance}, {maxlat}])"
-        )
-
-    dsout = dset.isel(**{attrs.SITENAME: station_ids})
-
-    # Return longitudes in the convention provided
-    if coords.consistent is False:
-        dsout = dsout.assign({"lon": coords._swap_longitude_convention(dsout.lon)})
-
-    dsout = dsout.assign_coords({attrs.SITENAME: np.arange(len(station_ids))})
+    dsout = dsout.assign_coords(**{attrs.SITENAME: np.arange(len(station_ids))})
 
     return dsout
