@@ -237,17 +237,17 @@ def sel_idw(
         # Mask it if no neighbour is found
         if len(indices) == 0:
             dsout.append(mask)
-        elif len(indices) ==  1:
-            dsout.append(dset.isel(site=0, drop=True))
         else:
             # Inverse distance weighting
-            # TODO: this is likely to create issues with directions, partitions, and won't work for dsets with non numeric variables (e.g., station_name)
+            # TODO: this is likely to create issues both with directions and partitions
+            sumfac = float(sum(factors))
             ind = indices.pop(0)
             fac = factors.pop(0)
             weighted = float(fac) * dset.isel(site=ind, drop=True)
             for ind, fac in zip(indices, factors):
                 weighted += float(fac) * dset.isel(site=ind, drop=True)
-            weighted /= float(sum(factors))
+            if len(indices) > 0:
+                weighted /= sumfac
             dsout.append(weighted)
 
     # Concat sites into dataset
