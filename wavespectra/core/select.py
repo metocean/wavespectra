@@ -217,7 +217,7 @@ def sel_idw(
     """
     coords = Coordinates(dset, lons=lons, lats=lats, dset_lons=dset_lons, dset_lats=dset_lats)
 
-    mask = dset.isel(site=0, drop=True) * np.nan
+    mask = dset.isel(site=0, drop=True).where(False)
     dsout = []
     for lon, lat in zip(coords.lons, coords.lats):
         closest_ids, closest_dist = coords.nearer(lon, lat, tolerance, max_sites)
@@ -237,16 +237,17 @@ def sel_idw(
         # Mask it if no neighbour is found
         if len(indices) == 0:
             dsout.append(mask)
+        elif len(indices) ==  1:
+            dsout.append(dset.isel(site=0, drop=True))
         else:
             # Inverse distance weighting
-            sumfac = float(1.0 / sum(factors))
+            # TODO: this is likely to create issues with directions, partitions, and won't work for dsets with non numeric variables (e.g., station_name)
             ind = indices.pop(0)
             fac = factors.pop(0)
             weighted = float(fac) * dset.isel(site=ind, drop=True)
             for ind, fac in zip(indices, factors):
                 weighted += float(fac) * dset.isel(site=ind, drop=True)
-            if len(indices) > 0:
-                weighted *= sumfac
+            weighted /= float(sum(factors))
             dsout.append(weighted)
 
     # Concat sites into dataset
