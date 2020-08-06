@@ -9,6 +9,7 @@ import six
 import xarray as xr
 
 from wavespectra.core.attributes import attrs
+from wavespectra.core.select import sel_idw, sel_nearest, sel_bbox
 from wavespectra.specarray import SpecArray
 
 here = os.path.dirname(os.path.abspath(__file__))
@@ -160,6 +161,73 @@ class SpecDataset(object):
             )
         }
         return self.dset.isel(indexersdict)
+
+    def sel(
+        self,
+        lons,
+        lats,
+        method="idw",
+        tolerance=2.0,
+        dset_lons=None,
+        dset_lats=None,
+        **kwargs
+    ):
+        """Select stations near or at locations defined by (lons, lats) vector.
+        Args:
+            lons (list): Longitude values of locations to select.
+            lats (list): Latitude values of locations to select.
+            method (str): Method to use for inexact matches:
+            * idw: Inverse distance weighting selection.
+            * nearest: Nearest site selection.
+            * bbox: Sites inside bbox [min(lons), min(lats)], [max(lons), max(lats)].
+            * None: Only exact matches.
+            tolerance (float): Maximum distance between locations and original stations
+                for inexact matches.
+            dset_lons (array): Longitude of stations in dset, not required but could
+                help improove speed.
+            dset_lats (array): Latitude of stations in dset, not required but could
+                help improove speed.
+            kwargs: Extra keywargs to pass to the respective sel function
+                (i.e., `sel_nearest`, `sel_idw`).
+        Return:
+            Stations Dataset selected at locations defined by zip(lons, lats).
+        Note:
+            `tolerance` behaves differently with methods 'idw' and 'nearest'. In 'idw'
+                sites with no neighbours within `tolerance` are masked whereas in
+                'nearest' an exception is raised.
+            `dset_lons`, `dset_lats` are not required but can improve performance when
+                `dset` is chunked with site=1 (expensive to access site coords) and
+                improve precision if projected coors are provided at high latitudes.
+        """
+        funcs = {
+            "idw": sel_idw,
+            "bbox": sel_bbox,
+            "nearest": sel_nearest,
+            None: sel_nearest,
+        }
+        try:
+            func = funcs[method]
+        except KeyError:
+            raise ValueError(
+                f"Method '{method}' not supported, valid ones are {list(funcs.keys())}"
+            )
+        if method is None:
+            kwargs.update({"exact": True})
+        # Providing station coordinates is a lot more efficient for chunked datasets
+        if dset_lons is None:
+            dset_lons = self.dset[attrs.LONNAME].values
+        if dset_lats is None:
+            dset_lats = self.dset[attrs.LATNAME].values
+        dsout = func(
+            dset=self.dset,
+            lons=lons,
+            lats=lats,
+            tolerance=tolerance,
+            dset_lons=dset_lons,
+            dset_lats=dset_lats,
+            **kwargs
+        )
+        return dsout
 
 
 if __name__ == "__main__":
