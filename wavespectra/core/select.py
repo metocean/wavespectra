@@ -95,7 +95,7 @@ class Coordinates:
         dist = np.minimum(dist, 360 - dist)
         if isinstance(dist, xr.DataArray):
             dist = dist.values
-        return np.abs(dist)
+        return dist
 
     def nearer(self, lon, lat, tolerance=np.inf, max_sites=None):
         """Nearer stations in (dset_lons, dset_lats) to site (lon, lat).
@@ -142,9 +142,9 @@ def sel_nearest(
     unique=False,
     exact=False,
     dset_lons=None,
-    dset_lats=None,
-):
-    """Select sites from nearest distance.
+    dset_lats=None):
+    """
+    Select sites from nearest distance.
 
     Args:
         dset (Dataset): Stations SpecDataset to select from.
@@ -172,13 +172,11 @@ def sel_nearest(
         closest_id, closest_dist = coords.nearest(lon, lat)
         if closest_dist > tolerance:
             raise AssertionError(
-                f"Nearest site from (lat={lat}, lon={lon}) is {closest_dist:g} "
-                f"deg away but tolerance is {tolerance:g} deg."
+                "Nearest site from (lat={}, lon={}) is {:g} deg away but tolerance is {:g} deg.".format(lat, lon, closest_dist, tolerance)
             )
         if exact and closest_dist > 0:
             raise AssertionError(
-                f"Exact match required but no site at (lat={lat}, lon={lon}), "
-                f"nearest site is {closest_dist} deg away."
+                "Exact match required but no site at (lat={}, lon={}), nearest site is {} deg away.".format(lat, lon, closest_dist)
             )
         station_ids.append(closest_id)
     if unique:
@@ -188,7 +186,7 @@ def sel_nearest(
 
     # Return longitudes in the convention provided
     if coords.consistent is False:
-        dsout.lon.values = coords._swap_longitude_convention(dsout.lon.values)
+        dsout.assign({"lon": coords._swap_longitude_convention(dsout.lon)})
 
     dsout = dsout.assign_coords({attrs.SITENAME: np.arange(len(station_ids))})
 
@@ -196,8 +194,7 @@ def sel_nearest(
 
 
 def sel_idw(
-    dset, lons, lats, tolerance=2.0, max_sites=4, dset_lons=None, dset_lats=None
-):
+    dset, lons, lats, tolerance=2.0, max_sites=4, dset_lons=None, dset_lats=None):
     """Select sites from inverse distance weighting.
 
     Args:
@@ -220,14 +217,13 @@ def sel_idw(
     """
     coords = Coordinates(dset, lons=lons, lats=lats, dset_lons=dset_lons, dset_lats=dset_lats)
 
-    mask = dset.isel(site=0, drop=True) * np.nan
+    mask = dset.isel(site=0, drop=True).where(False)
     dsout = []
     for lon, lat in zip(coords.lons, coords.lats):
         closest_ids, closest_dist = coords.nearer(lon, lat, tolerance, max_sites)
         if len(closest_ids) == 0:
             logger.debug(
-                f"No stations within {tolerance} deg of site (lat={lat}, lon={lon}), "
-                "this site will be masked."
+                "No stations within {} deg of site (lat={}, lon={}), this site will be masked.".format(tolerance, lat, lon)
             )
         # Collect ids and factors of neighbours
         indices = []
@@ -243,21 +239,19 @@ def sel_idw(
             dsout.append(mask)
         else:
             # Inverse distance weighting
-            sumfac = float(1.0 / sum(factors))
+            # TODO: this is likely to create issues both with directions and partitions
+            sumfac = float(sum(factors))
             ind = indices.pop(0)
             fac = factors.pop(0)
             weighted = float(fac) * dset.isel(site=ind, drop=True)
             for ind, fac in zip(indices, factors):
                 weighted += float(fac) * dset.isel(site=ind, drop=True)
             if len(indices) > 0:
-                weighted *= sumfac
+                weighted /= sumfac
             dsout.append(weighted)
 
     # Concat sites into dataset
-    dsout = xr.concat(dsout, dim=attrs.SITENAME)
-    for dvar in dsout.data_vars:
-        if set(dsout[dvar].dims) == set(dset[dvar].dims):
-            dsout[dvar] = dsout[dvar].transpose(*dset[dvar].dims)
+    dsout = xr.concat(dsout, dim=attrs.SITENAME).transpose(*dset[attrs.SPECNAME].dims)
 
     # Redefining coordinates and variables
     dsout[attrs.SITENAME] = np.arange(len(coords.lons))
@@ -266,7 +260,7 @@ def sel_idw(
 
     # Return longitudes in the convention provided
     if coords.consistent is False:
-        dsout.lon.values = coords._swap_longitude_convention(dsout.lon.values)
+        dsout = dsout.assign({"lon": coords._swap_longitude_convention(dsout.lon)})
 
     dsout.attrs = dset.attrs
     set_spec_attributes(dsout)
@@ -328,16 +322,18 @@ def sel_bbox(dset, lons, lats, tolerance=0.0, dset_lons=None, dset_lats=None):
     if station_ids.size == 0:
         raise ValueError(
             "No site found within bbox defined by "
-            f"([{min(coords._lons) - tolerance}, {minlat}], "
-            f"[{max(coords._lons) + tolerance}, {maxlat}])"
+            "([{},{}], [{},{}])".format(min(coords._lons) - tolerance,
+                                        minlat,
+                                        max(coords._lons) + tolerance,
+                                        maxlat)
         )
 
     dsout = dset.isel(**{attrs.SITENAME: station_ids})
 
     # Return longitudes in the convention provided
     if coords.consistent is False:
-        dsout.lon.values = coords._swap_longitude_convention(dsout.lon.values)
+        dsout = dsout.assign({"lon": coords._swap_longitude_convention(dsout.lon)})
 
-    dsout = dsout.assign_coords({attrs.SITENAME: np.arange(len(station_ids))})
+    dsout = dsout.assign_coords(**{attrs.SITENAME: np.arange(len(station_ids))})
 
     return dsout
