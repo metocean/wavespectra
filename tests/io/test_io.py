@@ -20,7 +20,7 @@ FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sample_
 
 class TestIO(object):
     """Test reading and writing of different file formats.
-    
+
     Extend IO tests by adding tuple to parametrize, e.g.:
         ('filename', read_{filetype}, 'to_{filetype}')
     Use None for 'to_{filetype} if there is no output method defined'.

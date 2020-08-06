@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 
 from wavespectra.core.attributes import attrs
-from wavespectra import read_ww3, read_era5
+from wavespectra import read_ww3
 from wavespectra.core.select import Coordinates
 
 FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sample_files")
@@ -24,12 +24,6 @@ class TestSel:
         self.lats_exact = self.lats[:2]
         self.lons_inexact = self.lons[-1:]
         self.lats_inexact = self.lats[-1:]
-
-    def test_sel_gridded(self):
-        """Test sel exception for gridded data."""
-        dset = read_era5(os.path.join(FILES_DIR, "era5file.nc"))
-        with pytest.raises(NotImplementedError):
-            dset.spec.sel(lons=self.lons, lats=self.lats, method="idw")
 
     def test_dset_sel_idw(self):
         """Assert that sel/idw method runs."""
@@ -187,7 +181,7 @@ class TestSelCoordinatesConventions:
             dset_lons=dset.lon.values,
             dset_lats=dset.lat.values
         )
-        assert ds.lon == 350
+        assert ds.lon % 360 == 350
 
     def test_idw_both_180(self):
         """Test IDW with both dataset and slice in [-180 <--> 180]."""
