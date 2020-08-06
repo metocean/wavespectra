@@ -209,7 +209,7 @@ class SpecDataset(object):
             func = funcs[method]
         except KeyError:
             raise ValueError(
-                f"Method '{method}' not supported, valid ones are {list(funcs.keys())}"
+                "Method '{}' not supported, valid ones are {}".format(method, list(funcs.keys()))
             )
         if method is None:
             kwargs.update({"exact": True})
