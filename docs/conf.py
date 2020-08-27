@@ -156,7 +156,7 @@ latex_documents = [
     )
 ]
 
-latex_logo = "_static/Gradient_wide.png"
+latex_logo = "_static/MO_Horiz_Primary_rgb.png"
 
 # -- Options for manual page output ---------------------------------------
 

@@ -1,4 +1,4 @@
-.. image:: _static/Gradient_wide.png
+.. image:: _static/MO_Horiz_Primary_rgb.png
    :width: 150 px
    :align: right
 
@@ -78,7 +78,7 @@ OCTOPUS
 JSON
 ~~~~
 
-.. autofunction:: wavespectra.read_json
+.. autofunction:: wavespectra.read_cf_json
    :noindex:
 
 Other functions
