@@ -162,7 +162,10 @@ def calc_Dth_cos2s(dirs, dp, dspr):
     a = abs(
         np.cos(th1) * np.cos(th2) + np.sin(th1) * np.sin(th2)
     )  # cos(a-b) = cos(a)cos(b)+sin(a)sin(b)
-    Dth = a ** (2.0 * dspr)  # cos((dirs-dp)/2) ** (2*dspr)
+    # Converting to cos2s spreading parameter
+    # see Holthuijsen pag165
+    s = (2./(dspr*np.pi/180)**2)-1
+    Dth = a ** (2.0 * s)  # cos((dirs-dp)/2) ** (2*s)
     Dth /= Dth.sum("dir") * abs(dirs[1] - dirs[0])
     return Dth
 
