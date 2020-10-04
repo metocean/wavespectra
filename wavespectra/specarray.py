@@ -132,7 +132,12 @@ class SpecArray(object):
         ) + self._obj.isel(freq=[ifreq - 1]).values * (
             self.freq.isel(freq=[ifreq]).values - fint
         )
-        Sint.freq.values = [fint]
+        freq_var = Sint.freq
+        Sint = Sint.assign_coords(freq=xr.DataArray(data=[fint],
+                                                    coords=freq_var.coords,
+                                                    dims=freq_var.dims,
+                                                    name=freq_var.name,
+                                                    attrs=freq_var.attrs))
         return Sint / df
 
     def _peak(self, arr):
