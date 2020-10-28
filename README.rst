@@ -51,6 +51,11 @@ Alternatively, to install in `development mode`_:
 .. code:: bash
 
    pip install -e .
+   
+Windows installation:
+~~~~~~~~~~~~~~~~~~~~
+Currently there are some issues with the Fortran version of spectral partitioning in Windows systems. A workaround is described in:
+https://github.com/metocean/wavespectra/issues/28#issuecomment-712503611
 
 Code structure:
 ---------------
