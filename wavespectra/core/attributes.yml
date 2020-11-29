@@ -67,11 +67,11 @@ ATTRS:
         standard_name: sea_surface_wave_directional_spread
         units: degree
     sw:
-        standard_name: sea_surface_wave_spectral_width
-        units: ""
+        standard_name: sea_surface_wave_spectral_frequency_width
+        units: "s^{-1}"
     swe:
-        standard_name: sea_surface_wave_spectral_width
-        units: ""
+        standard_name: sea_surface_wave_spectral_frequency_width
+        units: "s^{-1}"
     tm01:
         standard_name: sea_surface_wave_mean_period_from_variance_spectral_density_first_frequency_moment
         units: s
