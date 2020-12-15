@@ -74,8 +74,6 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
         other.time.encoding["units"] = TIME_UNITS
         other.time.encoding['dtype'] = 'float32'
         times = other.time.to_index().to_pydatetime()
-        #times = nc.num2date(other.time.to_index(),units='days since 1990-01-01') #other.time.to_index().to_pydatetime()
-        #import ipdb; ipdb.set_trace()
         other.attrs.update(
             {
                 "start_date": "{:%Y-%m-%d %H:%M:%S}".format(min(times)),
