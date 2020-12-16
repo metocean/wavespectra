@@ -71,6 +71,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
             other[var_name].attrs = var_attrs
     if "time" in other:
         other.time.encoding["units"] = TIME_UNITS
+        other.time.encoding['dtype'] = 'float32'
         times = other.time.to_index().to_pydatetime()
         other.attrs.update(
             {
@@ -81,6 +82,8 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
         if len(times) > 1:
             hours = round((times[1] - times[0]).total_seconds() / 3600)
             other.attrs.update({"field_type": "{}-hourly".format(hours)})
+    if 'efth' in other:
+        other.efth.encoding['_FillValue'] = 0.
     if "latitude" in other.dims:
         other.attrs.update(
             {
