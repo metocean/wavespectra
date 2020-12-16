@@ -3,7 +3,6 @@ import os
 import yaml
 import numpy as np
 import xarray as xr
-import netCDF4 as nc
 
 # from wavespectra import __version__
 from wavespectra.core.attributes import attrs
