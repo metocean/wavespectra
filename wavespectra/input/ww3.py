@@ -4,6 +4,7 @@ import xarray as xr
 
 from wavespectra.core.attributes import attrs, set_spec_attributes
 from wavespectra.specdataset import SpecDataset
+import warnings
 
 D2R = np.pi / 180
 
@@ -36,10 +37,19 @@ def read_ww3(filename_or_fileglob, chunks={}):
             "efth": attrs.SPECNAME,
             "longitude": attrs.LONNAME,
             "latitude": attrs.LATNAME,
-            "wnddir": attrs.WDIRNAME,
-            "wnd": attrs.WSPDNAME,
         }
     )
+    # Deal with wind variables separately as those are optional in some cases
+    try:
+        dset = dset.rename(
+            {
+                "wnddir": attrs.WDIRNAME,
+                "wnd": attrs.WSPDNAME,
+            }
+        )
+    except:
+        warnings.warn("read_ww3 - Failed to rename wind variables wnddir and wnd. "
+                      "Those might not be available in the file")
     if attrs.TIMENAME in dset[attrs.LONNAME].dims:
         dset[attrs.LONNAME] = dset[attrs.LONNAME].isel(drop=True, **{attrs.TIMENAME: 0})
         dset[attrs.LATNAME] = dset[attrs.LATNAME].isel(drop=True, **{attrs.TIMENAME: 0})
