@@ -82,9 +82,8 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
         if len(times) > 1:
             hours = round((times[1] - times[0]).total_seconds() / 3600)
             other.attrs.update({"field_type": "{}-hourly".format(hours)})
-    if 'efth' in other:
-        if not '_FillValue' in other.efth.encoding:
-            other.efth.encoding['_FillValue'] = 9.96921e+36
+    if 'efth' in other and '_FillValue' not in other.efth.encoding:
+        other.efth.encoding['_FillValue'] = 9.96921e+36
     if "latitude" in other.dims:
         other.attrs.update(
             {
