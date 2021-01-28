@@ -45,7 +45,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
     #other[attrs.LATNAME] = other[attrs.LATNAME].expand_dims(
     #    {attrs.TIMENAME: other[attrs.TIMENAME]}
     #)
-    # Converting to degree
+    # Converting to radians
     other[attrs.SPECNAME] *= R2D
     # frequency bounds
     df = np.hstack((0, np.diff(other[attrs.FREQNAME]) / 2))
@@ -54,8 +54,6 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
     other["frequency2"] = other[attrs.FREQNAME] + df
     # Direction in going-to convention
     other[attrs.DIRNAME] = (other[attrs.DIRNAME] + 180) % 360
-    # Direction in floats to allow plots
-    other['dir'] = other.dir.astype(float)
     # station_name variable
     arr = np.array([[c for c in "{:06.0f}".format(s)] + [""] * 10 for s in other.site.values], dtype="|S1")
     other["station_name"] = xr.DataArray(
