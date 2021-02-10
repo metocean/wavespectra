@@ -60,7 +60,7 @@ efth:
   globwave_name: directional_variance_spectral_density
   units: m2 s rad-1
   valid_min: 0.0
-  valid_max: 1e+20
+  valid_max: 100000000000000000000.0
   content: TXYZ
   associates: time station frequency direction
 
