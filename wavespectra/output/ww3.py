@@ -55,6 +55,8 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
     # Direction in going-to convention
     other[attrs.DIRNAME] = (other[attrs.DIRNAME] + 180) % 360.
     other['dir'] = other.dir.astype(np.float64)
+    # Reorder direction to fit ww3 convection (anti-clockwise from east)
+    other = other.sortby((90-other[attrs.DIRNAME])%360)
     # station_name variable
     arr = np.array([[c for c in "{:06.0f}".format(s)] + [""] * 10 for s in other.site.values], dtype="|S1")
     other["station_name"] = xr.DataArray(
