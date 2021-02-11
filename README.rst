@@ -4,8 +4,6 @@ Python library for ocean wave spectra.
 
 .. image:: https://travis-ci.org/jorgeperezg/wavespectra.svg?branch=master
     :target: https://travis-ci.org/jorgeperezg/wavespectra
-.. image:: https://img.shields.io/pypi/v/wavespectra.svg
-    :target: https://pypi.org/project/wavespectra/
 
 Main contents:
 --------------
