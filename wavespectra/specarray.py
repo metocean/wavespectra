@@ -277,14 +277,20 @@ class SpecArray(object):
 
         """
         assert fmax > fmin if fmax and fmin else True, "fmax needs to be greater than fmin"
-        assert dmax > dmin if dmax and dmin else True, "dmax needs to be greater than dmin"
 
         # Slice frequencies
         other = self._obj.sel(freq=slice(fmin, fmax))
 
         # Slice directions
         if attrs.DIRNAME in other.dims and (dmin or dmax):
-            other = self._obj.sortby([attrs.DIRNAME]).sel(dir=slice(dmin, dmax))
+            tmp = self._obj.sortby([attrs.DIRNAME])
+            if dmin and dmax and dmin > dmax:
+                other = xr.concat(
+                    [tmp.sel(dir=slice(dmin, None)), tmp.sel(dir=slice(None, dmax))],
+                    dim="dir",
+                )
+            else:
+                other = tmp.sel(dir=slice(dmin, dmax))
 
         # Interpolate at fmin
         if (fmin is not None) and (other.freq.min() > fmin) and (self.freq.min() <= fmin):
@@ -744,7 +750,7 @@ class SpecArray(object):
             - All input DataArray objects must have same non-spectral
               dimensions as SpecArray.
         References:
-            - Hanson, Jeffrey L., et al. "Pacific hindcast performance of three numerical 
+            - Hanson, Jeffrey L., et al. "Pacific hindcast performance of three numerical
               wave models." Journal of Atmospheric and Oceanic Technology 26.8 (2009): 1614-1633.
 
         TODO:
