@@ -25,6 +25,7 @@ VAR_ATTRIBUTES = yaml.load(
     open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ww3.yml")),
     Loader=yaml.Loader,
 )
+
 TIME_UNITS = VAR_ATTRIBUTES["time"].pop("units")
 
 
@@ -34,9 +35,10 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
         - filename (str): name of output WW3 netcdf file.
         - ncformat (str): netcdf format for output, see options in native
           to_netcdf method.
-        - compress (bool): if True output is compressed, has no effect for
+        - compress (bool): if True output is compressed and chunked, has no effect for
           NETCDF3.
     """
+
     other = self.copy(deep=True)
 
     # Converting to degree
@@ -62,20 +64,16 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
                                 coords={"site": other.site, "string16": [np.nan for i in range(16)]},
                                 dims=("site", "string16"),
                             )
+    
     # Renaming variables
     mapping = {v: k for k, v in MAPPING.items() if v in self.variables}
     other = other.rename(mapping)
     
     # Setting attributes
-    import ipdb; ipdb.set_trace()
 
     for var_name, var_attrs in VAR_ATTRIBUTES.items():
         if var_name in other:
             other[var_name].attrs = var_attrs
-
-    # for 'efth' variable
-    if 'efth' in other and '_FillValue' not in other.efth.encoding:
-        other.efth.encoding['_FillValue'] = 9.96921e+36
 
     # for "time" variable
     if "time" in other:
@@ -94,6 +92,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
                     }
                 )
     
+    # for "latitude" variable
     if "latitude" in other.dims:
         other.attrs.update(
                     {
@@ -107,9 +106,35 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
                         ).values,
                     }
                 )
-
+                
+    # global attrs
     other.attrs.update(VAR_ATTRIBUTES["global"])
     other.attrs.update({"product_name": os.path.basename(filename)})
+
+    ## compression / chunking / packing
+    if compress == True:
+        ## all encoding attrs will be used from the original data loaded
+        pass
+    elif compress == False:
+        ## some encoding attrs are kept, ohers either changed or supressed
+        for dkey in np.concatenate([other.coords.keys(),other.data_vars.keys()]):
+            ## changing packing related attrs
+            pack_attrs = ['scale_factor','add_offset']
+            if all(attr in other[dkey].encoding for attr in pack_attrs):
+                other[dkey].encoding['dtype'] = 'float32'
+                other[dkey].encoding['scale_factor'] = 1.0
+                other[dkey].encoding['add_offset'] = 0.0
+                ## ensure adequate missing/fillvalues
+                fillvalue =  9.96921e+36
+                for akey in ['missing_value', '_FillValue']:
+                    if akey not in other[dkey].encoding \
+                    or other[dkey].encoding[akey] != fillvalue:
+                        other[dkey].encoding[akey] = fillvalue 
+            ## removing compreession/chunking attrs
+            compress_attrs = ['complevel','zlib','shuffle','fletcher32','original_shape','chunksizes','contiguous']       
+            for popkey in compress_attrs:
+                if popkey in other[dkey].encoding.keys():
+                    other[dkey].encoding.pop(popkey)
 
     # Dump file to disk
     other.to_netcdf(filename)
