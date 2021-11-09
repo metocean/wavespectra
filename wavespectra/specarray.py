@@ -336,25 +336,28 @@ class SpecArray(object):
         )
         return hs.rename(self._my_name())
 
-    def hmax(self):
+    def hmax(self, k=None, D=3600.):
         """Maximum wave height Hmax.
 
-        hmax is the most probably value of the maximum individual wave height
+        Args:
+            - k (float): factor to multiply hs by
+            - D (float): time duration considered in the estimation (assumed stationary conditions)
+
+        hmax is the most probable value of the maximum individual wave height
         for each sea state. Note that maximum wave height can be higher (but
         not by much since the probability density function is rather narrow).
+
+        Note: k = 1.86  assumes N = 3*3600 / 10.8 (1000 crests)
 
         Reference:
             - Holthuijsen LH (2005). Waves in oceanic and coastal waters (page 82).
 
         """
-        if attrs.TIMENAME in self._obj.coords and self._obj.time.size > 1:
-            dt = np.diff(self._obj.time).astype("timedelta64[s]").mean()
+        if not k:
             N = (
-                dt.astype(float) / self.tm02()
+                D / self.tm02()
             ).round()  # N is the number of waves in a sea state
             k = np.sqrt(0.5 * np.log(N))
-        else:
-            k = 1.86  # assumes N = 3*3600 / 10.8
         hmax = k * self.hs()
         hmax.attrs.update(
             OrderedDict(
