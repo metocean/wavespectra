@@ -37,7 +37,9 @@ def to_swan(
     if dircap_270:
         direc = dset[attrs.DIRNAME].copy().values
         direc[direc > 270] = direc[direc > 270] - 360
-        dset = dset.update({attrs.DIRNAME: direc}).sortby("dir", ascending=False)
+        dset = dset.update(
+            {attrs.DIRNAME: direc}).sortby("dir", ascending=False
+        )
 
     darray = dset[attrs.SPECNAME]
     is_time = attrs.TIMENAME in darray.dims
@@ -74,21 +76,22 @@ def to_swan(
                 )
             elif unique_times:
                 sfile.write_spectra(
-                    darrout.isel(time=-1)
-                    .transpose(attrs.SITENAME, attrs.FREQNAME, attrs.DIRNAME)
-                    .values,
+                    darrout.isel(time=-1).transpose(
+                        attrs.SITENAME, attrs.FREQNAME, attrs.DIRNAME
+                    ).values,
                     time=to_datetime(t.values),
                 )
             else:
                 for it, tt in enumerate(darrout.time):
                     sfile.write_spectra(
-                        darrout.isel(time=it)
-                        .transpose(attrs.SITENAME, attrs.FREQNAME, attrs.DIRNAME)
-                        .values,
+                        darrout.isel(time=it).transpose(
+                            attrs.SITENAME, attrs.FREQNAME, attrs.DIRNAME
+                        ).values,
                         time=to_datetime(t.values),
                     )
     else:
         sfile.write_spectra(
-            darray.transpose(attrs.SITENAME, attrs.FREQNAME, attrs.DIRNAME).values
+            darray.transpose(
+                attrs.SITENAME, attrs.FREQNAME, attrs.DIRNAME).values
         )
     sfile.close()
