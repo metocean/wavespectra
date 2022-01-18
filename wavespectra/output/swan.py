@@ -35,7 +35,7 @@ def to_swan(
 
     # When prescribing bnds, SWAN doesn't like dir>270
     if dircap_270:
-        direc = dset[attrs.DIRNAME].values
+        direc = dset[attrs.DIRNAME].copy().values
         direc[direc > 270] = direc[direc > 270] - 360
         dset = dset.update({attrs.DIRNAME: direc}).sortby("dir", ascending=False)
 
