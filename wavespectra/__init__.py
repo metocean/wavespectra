@@ -5,7 +5,7 @@
 
 """
 
-__version__ = "3.5"
+__version__ = "3.6.2"
 __author__ = "MetOcean Solutions"
 __contact__ = "j.perez@metocean.co.nz"
 __url__ = "http://github.com/metocean/wavespectra"
