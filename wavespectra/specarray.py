@@ -277,14 +277,20 @@ class SpecArray(object):
 
         """
         assert fmax > fmin if fmax and fmin else True, "fmax needs to be greater than fmin"
-        assert dmax > dmin if dmax and dmin else True, "dmax needs to be greater than dmin"
 
         # Slice frequencies
         other = self._obj.sel(freq=slice(fmin, fmax))
 
         # Slice directions
         if attrs.DIRNAME in other.dims and (dmin or dmax):
-            other = self._obj.sortby([attrs.DIRNAME]).sel(dir=slice(dmin, dmax))
+            tmp = self._obj.sortby([attrs.DIRNAME])
+            if dmin and dmax and dmin > dmax:
+                other = xr.concat(
+                    [tmp.sel(dir=slice(dmin, None)), tmp.sel(dir=slice(None, dmax))],
+                    dim="dir",
+                )
+            else:
+                other = tmp.sel(dir=slice(dmin, dmax))
 
         # Interpolate at fmin
         if (fmin is not None) and (other.freq.min() > fmin) and (self.freq.min() <= fmin):
@@ -330,25 +336,28 @@ class SpecArray(object):
         )
         return hs.rename(self._my_name())
 
-    def hmax(self):
+    def hmax(self, k=None, D=3600.):
         """Maximum wave height Hmax.
 
-        hmax is the most probably value of the maximum individual wave height
+        Args:
+            - k (float): factor to multiply hs by
+            - D (float): time duration considered in the estimation (assumed stationary conditions)
+
+        hmax is the most probable value of the maximum individual wave height
         for each sea state. Note that maximum wave height can be higher (but
         not by much since the probability density function is rather narrow).
+
+        Note: k = 1.86  assumes N = 3*3600 / 10.8 (1000 crests)
 
         Reference:
             - Holthuijsen LH (2005). Waves in oceanic and coastal waters (page 82).
 
         """
-        if attrs.TIMENAME in self._obj.coords and self._obj.time.size > 1:
-            dt = np.diff(self._obj.time).astype("timedelta64[s]").mean()
+        if not k:
             N = (
-                dt.astype(float) / self.tm02()
+                D / self.tm02()
             ).round()  # N is the number of waves in a sea state
             k = np.sqrt(0.5 * np.log(N))
-        else:
-            k = 1.86  # assumes N = 3*3600 / 10.8
         hmax = k * self.hs()
         hmax.attrs.update(
             OrderedDict(
@@ -744,7 +753,7 @@ class SpecArray(object):
             - All input DataArray objects must have same non-spectral
               dimensions as SpecArray.
         References:
-            - Hanson, Jeffrey L., et al. "Pacific hindcast performance of three numerical 
+            - Hanson, Jeffrey L., et al. "Pacific hindcast performance of three numerical
               wave models." Journal of Atmospheric and Oceanic Technology 26.8 (2009): 1614-1633.
 
         TODO:

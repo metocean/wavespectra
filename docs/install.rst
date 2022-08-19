@@ -11,10 +11,10 @@ Install from pypi
 .. code:: bash
 
    # Default install, miss some dependencies and functionality
-   pip install wavespectra
+   pip install git+ssh://git@github.com/metocean/wavespectra
 
    # Complete install
-   pip install wavespectra[extra]
+   pip install 'git+ssh://git@github.com/metocean/wavespectra.git#egg=wavespectra[extra]'
 
 Install from sources
 --------------------

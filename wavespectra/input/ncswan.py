@@ -34,7 +34,6 @@ def read_ncswan(
 
     """
     dset = xr.open_mfdataset(filename_or_fileglob, chunks=chunks)
-    _units = dset.density.attrs.get("units", "")
     dset = dset.rename(
         {
             "frequency": attrs.FREQNAME,
@@ -57,19 +56,16 @@ def read_ncswan(
         )
     # Setting standard names and storing original file attributes
     set_spec_attributes(dset)
-    dset[attrs.SPECNAME].attrs.update(
-        {"_units": _units, "_variable_name": attrs.SPECNAME}
-    )
     # Converting from radians
     dset[attrs.SPECNAME] /= R2D
     if attrs.DIRNAME in dset:
         dir_var = dset[attrs.DIRNAME]
+        dir_var.attrs.update({'units': 'degree'})
         dset = dset.assign_coords(dir=xr.DataArray(data=(dir_var.data*R2D)%360,
                                                    coords=dir_var.coords,
                                                    dims=dir_var.dims,
                                                    name=dir_var.name,
-                                                   attrs=dir_var.attrs\
-                                                                .update({'units': 'degree'})))
+                                                   attrs=dir_var.attrs))
         if sort_dirs:
             dset = dset.sortby(attrs.DIRNAME)
     # Adjustting attributes if 1D
