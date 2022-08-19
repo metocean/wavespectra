@@ -1,4 +1,4 @@
-netCDF4
-sympy
+netCDF4==1.5.5
+sympy==3.0.13
 dbfread
 matplotlib
