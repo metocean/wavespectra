@@ -1,4 +1,5 @@
 netCDF4==1.5.3
+mpmath==1.1.0
 sympy==1.5.1
 dbfread
 matplotlib
