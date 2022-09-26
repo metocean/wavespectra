@@ -32,10 +32,18 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
     """
     dset = xr.open_mfdataset(filename_or_fileglob, chunks=chunks)
     _units = dset.AC.attrs.get("units", "")
+
+    # Assigning spectral variables to their
+    # corresponding dimensions
+    dset['spsig'] = dset['spsig'].squeeze()
+    dset['spdir'] = dset['spdir'].squeeze()
+    dset = dset.swap_dims({"nfreq": "spsig",
+                           "ndir": "spdir"})
+    
     dset = dset.rename(
         {
-            "nfreq": attrs.FREQNAME,
-            "ndir": attrs.DIRNAME,
+            "spsig": attrs.FREQNAME,
+            "spdir": attrs.DIRNAME,
             "nbstation": attrs.SITENAME,
             "AC": attrs.SPECNAME,
             "lon": attrs.LONNAME,
@@ -54,17 +62,16 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
     dset[attrs.SPECNAME].attrs.update(
         {"_units": _units, "_variable_name": attrs.SPECNAME}
     )
-    # Assigning spectral coordinates
-    dset[attrs.FREQNAME] = dset.spsig / (2 * np.pi)  # convert rad to Hz
-    dset[attrs.DIRNAME] = dset.spdir
-    # converting Action to Energy density and adjust density to Hz
-    dset[attrs.SPECNAME] = dset[attrs.SPECNAME] * dset.spsig * (2 * np.pi)
-    # Converting directions from radians
-    dset[attrs.DIRNAME] = dset[attrs.DIRNAME] * R2D # dim var neesds explicit assign in py3
-    dset[attrs.SPECNAME] /= R2D
-    # we found that the directions are in the trigonometric convection. Converting:
-    dset[attrs.DIRNAME] = (270 - dset[attrs.DIRNAME] + 360) % 360
-    dset = dset.sortby(attrs.DIRNAME, ascending=True)
+    with xr.set_options(keep_attrs=True): # Allows to propagate attributes
+        # converting Action to Energy density and adjust density to Hz
+        dset[attrs.SPECNAME] = dset[attrs.SPECNAME] * dset[attrs.FREQNAME] * (2 * np.pi)
+        dset[attrs.FREQNAME] = dset[attrs.FREQNAME] / (2 * np.pi)  # convert rad to Hz
+        # Converting directions from radians
+        dset[attrs.DIRNAME] = dset[attrs.DIRNAME] * R2D # dim var neesds explicit assign in py3
+        dset[attrs.SPECNAME] /= R2D
+        # we found that the directions are in the trigonometric convection. Converting:
+        dset[attrs.DIRNAME] = (270 - dset[attrs.DIRNAME] + 360) % 360  
+        dset = dset.sortby(attrs.DIRNAME, ascending=True)
     # Returns only selected variables, transposed
     to_drop = [
         dvar
