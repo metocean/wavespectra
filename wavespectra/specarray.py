@@ -873,47 +873,6 @@ class SpecArray(object):
         raise NotImplementedError(
             "Wave spreading at the peak wave frequency method not defined"
         )
-    def cross_sea_Li2016(self):
-        """Crossed Sea parameters by Li et al.,2016
-         Li, X. (2016). A new insight from space into swell propagation and crossing in the global oceans. Geophysical Research Letters, 43, 5202 - 5209.
-        Two criteria are used to identify a crossing sea case: 
-        (1) The angle between two swell systems is larger than 40° [Cavaleri et al., 2012; Onorato et al., 2010]. 
-        (2) The proportion of the second peak wave energy in the total retrieved swell wave energy of a single case is higher than 20%.
-
-        Args:
-            - xx
-
-        Returns:
-            - cross_sea (array): array of 0/1 where "crossed sea" condition is satisfied
-
-        References:
-            -  Li, X. (2016). A new insight from space into swell propagation and crossing in the 
-              global oceans. Geophysical Research Letters, 43, 5202 - 5209.
-        """
-        try : 
-            # Condition 1 - The angle between two swell systems is larger than 40° [Cavaleri et al., 2012; Onorato et al., 2010].
-            dir_difference  = np.abs(self.dpm()[1]-self.dpm()[2])
-            # if absolute difference in larger than 180, then need to do 360-diff to get smallest difference
-            # e.g. abs(10-350) = 340 ,340>180 dir_diff = 360-340 = 20
-            dir_difference = dir_difference.where(dir_difference<180,other = 360-dir_difference) # if dir_difference<180, keep as is, if not do 360-dir_difference
-            condition1 = dir_difference > 40.0 # note if dir_difference is nan, then it will be False/0 which is fine
-            # Condition 2 - The proportion of the second peak wave energy in the total retrieved swell wave energy of a single case is higher than 20%.
-            swell_energy = (self.hs()[1:]**2).sum(dim='part') # sum of all swell's hs**2
-            condition2 = self.hs()[2]**2 >= 0.2 * swell_energy
-            cross_sea_Li2016 = np.logical_and(condition1,condition2) * 1.0
-            cross_sea_Li2016.attrs.update(
-                OrderedDict(
-                    (
-                        ("standard_name", 'cross_sea_Li2016'), # self.standard_name(self._my_name())
-                        ("units",'dimensionless'),             # self._units(self._my_name())
-                    )
-                )
-            )
-
-            return cross_sea_Li2016.rename('cross_sea_Li2016')
-        except:
-            raise ValueError(
-             "only works on partitionned dataset, you need to call dspart = ds.spec.partition(ds.wspd, ds.wdir, ds.dpt) before hand")
 
     def stats(self, stats, fmin=None, fmax=None, dmin=None, dmax=None, names=None):
         """Calculate multiple spectral stats into a Dataset.
