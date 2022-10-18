@@ -985,6 +985,9 @@ class SpecArray(object):
             )
         )
         return steepness.rename('steepness')
+        
+        # alternative equation could simply be 
+        # self.hs() / (2*np.pi/self.peak_wavenumber())
 
     def goda_peakedness(self):
         """Compute Goda's peakedness factor.
