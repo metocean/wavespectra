@@ -954,14 +954,14 @@ class SpecArray(object):
         )
         return r_crest_trough_correlation.rename('r_crest_trough_correlation') # or r_crest_trough_correlation.rename('r_crest_trough_correlation') ?
 
-    def peak_wavenumber(self,water_depth=1000.0):
-        """Compute peak wave number, based on peak period tp()"""
+    def wavenumber(self,wave_period =10.0, water_depth=None):
+        """Compute wave number for user-input wave period"""
         if water_depth:
-            ang_freq = 2 * np.pi * (1/self.tp())
-            peak_wavenumber =  wavenuma(ang_freq, water_depth)
+            ang_freq = 2 * np.pi * (1/wave_period)
+            wavenumber =  wavenuma(ang_freq, water_depth)
         else: # deep water approximation
-            peak_wavenumber = 2 * np.pi / (1.56 * self.tp() ** 2)
-        return peak_wavenumber.rename('peak_wavenumber')
+            wavenumber = 2 * np.pi / (1.56 * wave_period ** 2)
+        return wavenumber.rename('wavenumber')
 
     def steepness(self):
         """Compute characteristic steepness from peak wave number.
@@ -975,7 +975,7 @@ class SpecArray(object):
 
         # np.sqrt(2 * zeroth_moment) * peak_wavenumber
         mom0 = self.momf(0).sum(dim=attrs.DIRNAME)*self.dd# self._twod(self.momf(0), dim=attrs.FREQNAME).spec.oned(skipna=False)
-        steepness = np.sqrt(2 * mom0) * self.peak_wavenumber()
+        steepness = np.sqrt(2 * mom0) * self.wavenumber(self.tp())
         steepness.attrs.update(
             OrderedDict(
                 (
@@ -1038,10 +1038,12 @@ class SpecArray(object):
 
         """            
         # Simple version following Gemmrich, J., & Cicon, L. (2022). Eq. 4,5,6
-        mom0 = self.momf(0).sum(dim=attrs.DIRNAME)*self.dd# self._twod(self.momf(0), dim=attrs.FREQNAME).spec.oned(skipna=False)
-        wave_steepness = np.sqrt(self.peak_wavenumber()**2 * mom0) # eqn (5)
+        mom0 = self.momf(0).sum(dim=attrs.DIRNAME)*self.dd# note mom0 is also equivalent to the variance of sea state 
+        wave_steepness_peak = np.sqrt(self.wavenumber(self.tp())**2 * mom0) # eqn (5)
+        wave_steepness_mean = np.sqrt(self.wavenumber(self.tm01())**2 * mom0) # eqn (5)
         spectral_bandwidth = self.sw() # eqn (6) same as self.sw()
-        BFI = np.sqrt(2) * wave_steepness/spectral_bandwidth # eqn(4)
+        BFI = np.sqrt(2) * wave_steepness_peak/spectral_bandwidth # eqn(4)
+        # BFI = np.sqrt(2) * wave_steepness_mean/spectral_bandwidth # some authors use the mean steepness...
         BFI.attrs.update(
             OrderedDict(
                 (
