@@ -973,7 +973,6 @@ class SpecArray(object):
             >> Equation (9)
         """
 
-        # np.sqrt(2 * zeroth_moment) * peak_wavenumber
         mom0 = self.momf(0).sum(dim=attrs.DIRNAME)*self.dd# self._twod(self.momf(0), dim=attrs.FREQNAME).spec.oned(skipna=False)
         steepness = np.sqrt(2 * mom0) * self.wavenumber(self.tp())
         steepness.attrs.update(
@@ -1019,6 +1018,8 @@ class SpecArray(object):
 
     def BFI(self,water_depth = 1000.0): #bandwidth, steepness, peak_wavenumber):
         """Compute Benjamin-Feir index (BFI) from bandwidth and steepness estimates.
+           Useful index for estimating the freak wave occurrence for a given unidirectional wave
+
         
         References:
             Serio, Marina, et al. “On the Computation of the Benjamin-Feir Index.”
@@ -1043,7 +1044,7 @@ class SpecArray(object):
         wave_steepness_mean = np.sqrt(self.wavenumber(self.tm01())**2 * mom0) # eqn (5)
         spectral_bandwidth = self.sw() # eqn (6) same as self.sw()
         BFI = np.sqrt(2) * wave_steepness_peak/spectral_bandwidth # eqn(4)
-        # BFI = np.sqrt(2) * wave_steepness_mean/spectral_bandwidth # some authors use the mean steepness...
+        # BFI = np.sqrt(2) * wave_steepness_mean/spectral_bandwidth # some authors suggest to use the mean steepness...
         BFI.attrs.update(
             OrderedDict(
                 (
