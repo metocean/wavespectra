@@ -25,6 +25,7 @@ VAR_ATTRIBUTES = yaml.load(
     open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ww3.yml")),
     Loader=yaml.Loader,
 )
+
 TIME_UNITS = VAR_ATTRIBUTES["time"].pop("units")
 
 
@@ -34,77 +35,113 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
         - filename (str): name of output WW3 netcdf file.
         - ncformat (str): netcdf format for output, see options in native
           to_netcdf method.
-        - compress (bool): if True output is compressed, has no effect for
+        - compress (bool): if True output is compressed and chunked, has no effect for
           NETCDF3.
     """
+
     other = self.copy(deep=True)
-    # Expanding lon/lat dimensions
-    #other[attrs.LONNAME] = other[attrs.LONNAME].expand_dims(
-    #    {attrs.TIMENAME: other[attrs.TIMENAME]}
-    #)
-    #other[attrs.LATNAME] = other[attrs.LATNAME].expand_dims(
-    #    {attrs.TIMENAME: other[attrs.TIMENAME]}
-    #)
+
     # Converting to degree
     other[attrs.SPECNAME] *= R2D
+
     # frequency bounds
     df = np.hstack((0, np.diff(other[attrs.FREQNAME]) / 2))
     other["frequency1"] = other[attrs.FREQNAME] - df
     df = np.hstack((np.diff(other[attrs.FREQNAME]) / 2, 0))
     other["frequency2"] = other[attrs.FREQNAME] + df
+
     # Direction in going-to convention
     other[attrs.DIRNAME] = (other[attrs.DIRNAME] + 180) % 360.
     other[attrs.DIRNAME] = other[attrs.DIRNAME].astype(np.float64)
+
     # Reorder direction to fit ww3 convention (anti-clockwise from east)
     other = other.sortby((90-other[attrs.DIRNAME])%360)
+
     # station_name variable
     arr = np.array([[c for c in "{:06.0f}".format(s)] + [""] * 10 for s in other.site.values], dtype="|S1")
     other["station_name"] = xr.DataArray(
-        data=arr,
-        coords={"site": other.site, "string16": [np.nan for i in range(16)]},
-        dims=("site", "string16"),
-    )
-    # Renaming
+                                data=arr,
+                                coords={
+                                    "site": other.site, 
+                                    "string16": [np.nan for i in range(16)]
+                                    },
+                                dims=("site", "string16"),
+                            )
+    
+    # Renaming variables
     mapping = {v: k for k, v in MAPPING.items() if v in self.variables}
     other = other.rename(mapping)
+    
     # Setting attributes
-    other.attrs.update(VAR_ATTRIBUTES["global"])
     for var_name, var_attrs in VAR_ATTRIBUTES.items():
         if var_name in other:
             other[var_name].attrs = var_attrs
+
+    # for "time" variable
     if "time" in other:
         other.time.encoding["units"] = TIME_UNITS
         other.time.encoding['dtype'] = 'float32'
         times = other.time.to_index().to_pydatetime()
-        other.attrs.update(
-            {
-                "start_date": "{:%Y-%m-%d %H:%M:%S}".format(min(times)),
-                "stop_date": "{:%Y-%m-%d %H:%M:%S}".format(max(times)),
-            }
-        )
+
         if len(times) > 1:
             hours = round((times[1] - times[0]).total_seconds() / 3600)
             other.attrs.update({"field_type": "{}-hourly".format(hours)})
-    if 'efth' in other and '_FillValue' not in other.efth.encoding:
-        other.efth.encoding['_FillValue'] = 9.96921e+36
+
+        other.attrs.update(
+            {
+            "start_date": "{:%Y-%m-%d %H:%M:%S}".format(min(times)),
+            "stop_date": "{:%Y-%m-%d %H:%M:%S}".format(max(times)),
+            }
+        )
+    
+    # for "latitude" variable
     if "latitude" in other.dims:
         other.attrs.update(
             {
-                "southernmost_latitude": other.latitude.values.min(),
-                "northernmost_latitude": other.latitude.values.max(),
-                "latitude_resolution": (other.latitude[1] - other.latitude[0]).values,
-                "westernmost_longitude": other.longitude.values.min(),
-                "easternmost_longitude": other.longitude.values.max(),
-                "longitude_resolution": (
-                    other.longitude[1] - other.longitude[0]
-                ).values,
+            "southernmost_latitude": other.latitude.values.min(),
+            "northernmost_latitude": other.latitude.values.max(),
+            "latitude_resolution": (other.latitude[1] - other.latitude[0]).values,
+            "westernmost_longitude": other.longitude.values.min(),
+            "easternmost_longitude": other.longitude.values.max(),
+            "longitude_resolution": (other.longitude[1] - other.longitude[0]).values,
             }
         )
-    other.attrs.update(
-        {
-            "product_name": os.path.basename(filename),
-            # "format_version": f"wavespectra-{__version__}"
-        }
-    )
-    # Dumping
+                
+    # global attrs
+    other.attrs.update(VAR_ATTRIBUTES["global"])
+    other.attrs.update({"product_name": os.path.basename(filename)})
+
+    ## compression / chunking / packing
+    if compress == True:
+        ## all encoding attrs will be used from the original data loaded
+        pass
+    elif compress == False:
+        ## some encoding attrs are kept, ohers either changed or supressed
+        for dkey in np.concatenate([other.coords.keys(), other.data_vars.keys()]):
+            ## changing packing related attrs
+            pack_attrs = ['scale_factor','add_offset']
+            if all(attr in other[dkey].encoding for attr in pack_attrs):
+                other[dkey].encoding['dtype'] = 'float32'
+                other[dkey].encoding['scale_factor'] = 1.0
+                other[dkey].encoding['add_offset'] = 0.0
+                ## ensure adequate missing/fillvalues
+                fillvalue =  9.96921e+36
+                for akey in ['missing_value', '_FillValue']:
+                    if akey not in other[dkey].encoding \
+                    or other[dkey].encoding[akey] != fillvalue:
+                        other[dkey].encoding[akey] = fillvalue 
+            ## removing compreession/chunking attrs if any
+            compress_attrs = [
+                'complevel',
+                'zlib',
+                'shuffle',
+                'fletcher32',
+                'original_shape',
+                'chunksizes',
+                'contiguous']       
+            for popkey in compress_attrs:
+                if popkey in other[dkey].encoding.keys():
+                    other[dkey].encoding.pop(popkey)
+
+    # Dump file to disk
     other.to_netcdf(filename)
