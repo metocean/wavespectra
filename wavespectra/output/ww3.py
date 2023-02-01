@@ -1,13 +1,13 @@
 """Native WAVEWATCH3 output plugin."""
 import os
-import yaml
+
 import numpy as np
 import xarray as xr
+import yaml
 
 # from wavespectra import __version__
 from wavespectra.core.attributes import attrs
 from wavespectra.core.misc import R2D
-
 
 MAPPING = {
     "time": attrs.TIMENAME,
@@ -29,14 +29,14 @@ VAR_ATTRIBUTES = yaml.load(
 TIME_UNITS = VAR_ATTRIBUTES["time"].pop("units")
 
 
-def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
+def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
     """Save spectra in native WW3 netCDF format.
     Args:
         - filename (str): name of output WW3 netcdf file.
         - ncformat (str): netcdf format for output, see options in native
           to_netcdf method.
-        - compress (bool): if True output is compressed and chunked, has no effect for
-          NETCDF3.
+        - compress (bool): if False avoids compression; if True output is
+          compressed and chunked, has no effect for NETCDF3.
     """
 
     other = self.copy(deep=True)
@@ -62,16 +62,16 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
     other["station_name"] = xr.DataArray(
                                 data=arr,
                                 coords={
-                                    "site": other.site, 
+                                    "site": other.site,
                                     "string16": [np.nan for i in range(16)]
                                     },
                                 dims=("site", "string16"),
                             )
-    
+
     # Renaming variables
     mapping = {v: k for k, v in MAPPING.items() if v in self.variables}
     other = other.rename(mapping)
-    
+
     # Setting attributes
     for var_name, var_attrs in VAR_ATTRIBUTES.items():
         if var_name in other:
@@ -93,7 +93,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
             "stop_date": "{:%Y-%m-%d %H:%M:%S}".format(max(times)),
             }
         )
-    
+
     # for "latitude" variable
     if "latitude" in other.dims:
         other.attrs.update(
@@ -106,7 +106,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
             "longitude_resolution": (other.longitude[1] - other.longitude[0]).values,
             }
         )
-                
+
     # global attrs
     other.attrs.update(VAR_ATTRIBUTES["global"])
     other.attrs.update({"product_name": os.path.basename(filename)})
@@ -117,9 +117,9 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
         pass
     elif compress == False:
         ## some encoding attrs are kept, ohers either changed or supressed
-        for dkey in np.concatenate([other.coords.keys(), other.data_vars.keys()]):
+        for dkey in list(other.coords) + list(other.data_vars):
             ## changing packing related attrs
-            pack_attrs = ['scale_factor','add_offset']
+            pack_attrs = ['scale_factor', 'add_offset']
             if all(attr in other[dkey].encoding for attr in pack_attrs):
                 other[dkey].encoding['dtype'] = 'float32'
                 other[dkey].encoding['scale_factor'] = 1.0
@@ -129,8 +129,9 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
                 for akey in ['missing_value', '_FillValue']:
                     if akey not in other[dkey].encoding \
                     or other[dkey].encoding[akey] != fillvalue:
-                        other[dkey].encoding[akey] = fillvalue 
-            ## removing compreession/chunking attrs if any
+                        other[dkey].encoding[akey] = fillvalue
+
+            ## removing compression/chunking attrs if any
             compress_attrs = [
                 'complevel',
                 'zlib',
@@ -138,10 +139,14 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
                 'fletcher32',
                 'original_shape',
                 'chunksizes',
-                'contiguous']       
+                'contiguous']
             for popkey in compress_attrs:
                 if popkey in other[dkey].encoding.keys():
                     other[dkey].encoding.pop(popkey)
+    elif compress == None:
+        ## for backwards compatibility
+        if 'efth' in other and '_FillValue' not in other.efth.encoding:
+            other.efth.encoding['_FillValue'] = 9.96921e+36
 
     # Dump file to disk
     other.to_netcdf(filename)
