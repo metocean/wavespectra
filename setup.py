@@ -81,13 +81,13 @@ def read(fname):
 
 def ext_configuration(parent_package="", top_path=None):
     config = Configuration("", "", "")
-    config.add_extension(
-        "wavespectra.specpart",
-        sources=[
-            "wavespectra/specpart/specpart.pyf",
-            "wavespectra/specpart/specpart.f90",
-        ],
-    )
+    # config.add_extension(
+    #     "wavespectra.specpart",
+    #     sources=[
+    #         "wavespectra/specpart/specpart.pyf",
+    #         "wavespectra/specpart/specpart.f90",
+    #     ],
+    # )
     config.add_data_files("LICENSE.txt", "wavespectra/core/attributes.yml", "wavespectra/output/ww3.yml")
     return config
 

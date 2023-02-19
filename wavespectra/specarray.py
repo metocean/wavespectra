@@ -729,7 +729,7 @@ class SpecArray(object):
         hs_min=0.001,
         nearest=False,
         max_swells=5,
-        fortran_code=True,
+        fortran_code=False,
     ):
         """Partition wave spectra using WW3 watershed algorithm.
 
