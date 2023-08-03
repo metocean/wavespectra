@@ -743,7 +743,7 @@ class SpecArray(object):
             - nearest (bool): if True, wsp, wdir and dep are allowed to be taken from the.
               nearest point if not matching positions in SpecArray (slower).
             - max_swells (int): maximum number of swells to extract
-            - fortran_code (bool): use fortran partition code or (~30x slower) pure python
+            - fortran_code (bool): Try to use fortran partition code instead of (~30x slower) pure python
 
         Returns:
             - part_spec (SpecArray): partitioned spectra with one extra dimension
@@ -777,8 +777,12 @@ class SpecArray(object):
             )
 
         if fortran_code:
-            from wavespectra.specpart import specpart
-        else:
+            try:
+                from wavespectra.specpart import specpart
+            except ImportError:
+                fortran_code = False
+
+        if not fortran_code:
             from wavespectra.core import specpartpy as specpart
 
         # Initialise output - one SpecArray for each partition

@@ -94,7 +94,7 @@ def ext_configuration(parent_package="", top_path=None):
 
 kwargs = ext_configuration(top_path="").todict()
 
-setup(
+setup_dict = dict(
     name=NAME,
     version=wavespectra.__version__,
     description=wavespectra.__description__,
@@ -117,3 +117,12 @@ setup(
     project_urls=PROJECT_URLS,
     **kwargs
 )
+
+try:
+    setup(**setup_dict)
+except:
+    print("Installation error. Trying without fortran partitioning extension.")
+    setup_dict.pop("ext_modules")
+    setup(**setup_dict)
+    print("Installed without fortran partitioning extension.")
+    
