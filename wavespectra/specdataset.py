@@ -41,7 +41,7 @@ class Plugin(type):
 @six.add_metaclass(Plugin)
 class SpecDataset(object):
     """Wrapper around the xarray dataset.
-    
+
     Plugin functions defined in wavespectra/output/<module>
     are attached as methods in this accessor class.
 

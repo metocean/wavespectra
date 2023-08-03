@@ -90,4 +90,3 @@ def test_multi_clean_axis(load_specdataset):
         clean_radius=True,
         clean_sector=True
     )
-

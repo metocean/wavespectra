@@ -7,7 +7,7 @@ from wavespectra.core.attributes import attrs, set_spec_attributes
 
 def spread(dp_matrix, dspr_matrix, dirs):
     """Cosine 2s spreading function.
-    
+
     Args:
         dp_matrix: wave directions
         dspr_matrix: wave directional spreads
@@ -18,7 +18,7 @@ def spread(dp_matrix, dspr_matrix, dirs):
 
     Note:
         Function defined such that \int{G1 d\theta}=1*
-    
+
     """
     th1 = 0.5 * np.deg2rad(np.array(dirs).reshape((1, -1)))
     th2 = 0.5 * np.deg2rad(dp_matrix)
@@ -46,7 +46,7 @@ def arrange_inputs(*args):
 
 def make_dataset(spec, freqs, dirs, coordinates=[]):
     """Package spectral matrix to xarray.
-    
+
     Args:
         spec:
         freqs:
@@ -68,11 +68,11 @@ def make_dataset(spec, freqs, dirs, coordinates=[]):
 
 def check_coordinates(param, coordinates):
     """Check coordinates are consistent with parameter.
-    
+
     Args:
         param:
         coordinates:
-    
+
     """
     pshape = np.array(param).shape
     if len(pshape) != len(coordinates):

@@ -56,7 +56,7 @@ power of `xarray`_.  In common usage, this mechanism is largely transparent,
 with the provided reading functions , returning the above classes from which
 the spectral methods can be directly accessed (see :ref:`Input`).  For example,
 to read a swan spectral file and calculate the corresponing significant wave
-heights: 
+heights:
 
 .. code:: python
 
@@ -66,7 +66,7 @@ heights:
     hs = dset.spec.hs()
 
 
-Details of each class are below. 
+Details of each class are below.
 
 SpecArray
 ---------

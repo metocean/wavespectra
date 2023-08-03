@@ -1,6 +1,6 @@
 SWAN   1                                Swan standard spectral file
 $   Created by wavespectra
-$   
+$
 TIME                                    time-dependent data
      1                                  time coding option
 LONLAT                                  locations in spherical coordinates

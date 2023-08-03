@@ -13,41 +13,41 @@
 !     ----------------------------------------------------------------
       integer, allocatable :: neigh(:,:),imi(:),ind(:),imo(:)
       real, allocatable :: zp(:)
-      
+
       public :: partinit, partition, ihmax, npart
 
       contains
-      
+
       subroutine partinit(nk,nth)
-      
+
       if ( mk.eq.nk .and. mth.eq.nth ) return
       nspec=nk*nth
-      
+
       if ( mk.gt.0 ) deallocate ( neigh, imi, imo, ind, zp )
       allocate(imi(nspec), imo(nspec), ind(nspec), zp(nspec))
       allocate ( neigh(9,nspec) )
       mk     = nk
       mth    = nth
       call ptnghb
-      
+
       end subroutine partinit
-      
-      
+
+
       subroutine partition(spec,ipart,nk,nth)
-      
+
       real, intent(in) :: spec(nk,nth)
-      integer, intent(out) :: ipart(nk,nth)  
+      integer, intent(out) :: ipart(nk,nth)
       integer iang,nk,nth
       real zmin,zmax
-      
+
       call partinit(nk,nth)
-      
+
       if (nk.ne.mk.or.mth.ne.nth) then
         write(*,*) mk,mth,nk,nth
         write(*,*) 'Error: partinit must be called with correct spectral dimensions'
         stop
       endif
-      
+
       do iang=1, mth
         zp(1+(iang-1)*mk:iang*mk) = spec(:,iang)
       enddo
@@ -65,11 +65,11 @@
 
       call ptsort (ihmax,nspec)
       call pt_fld (nspec, npart)
-      
+
       do iang=1, mth
         ipart(:,iang)=imo(1+(iang-1)*mk:iang*mk)
       enddo
-      
+
       end subroutine partition
 
       subroutine ptsort(iihmax,nnspec)
@@ -146,7 +146,7 @@
 !
 ! ... point at the right (2)
 !
-        if ( i .ne. mk ) then 
+        if ( i .ne. mk ) then
             k           = k + 1
             neigh(k, n) = n + 1
           end if

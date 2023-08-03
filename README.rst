@@ -49,7 +49,7 @@ Alternatively, to install in `development mode`_:
 .. code:: bash
 
    pip install -e .
-   
+
 Windows installation:
 ~~~~~~~~~~~~~~~~~~~~
 Currently there are some issues with the Fortran version of spectral partitioning in Windows systems. A workaround is described in:

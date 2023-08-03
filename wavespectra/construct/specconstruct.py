@@ -145,7 +145,7 @@ def calc_Sf_ochihubble(freqs, hs, fp, lam):
 
 def calc_Dth_cos2s(dirs, dp, dspr):
     """Cosine 2s spreading function.
-    
+
     Arguments:
         dirs: direction coordinates
         dp: wave directions

@@ -31,7 +31,7 @@ def read_swan(filename, dirorder=True, as_site=None):
         - dirorder (bool): If True reorder spectra so that directions are
           sorted.
         - as_site (bool): If True locations are defined by 1D site dimension.
-        
+
     Returns:
         - dset (SpecDataset): spectra dataset object read from file.
 
@@ -192,7 +192,7 @@ def read_swans(
         - dirorder (bool): if True ensures directions are sorted.
         - ntimes (int): use it to read only specific number of times, useful
           for checking headers only.
-        
+
     Returns:
         - dset (SpecDataset): spectra dataset object read from file with
           different sites and cycles concatenated along the 'site' and 'time'

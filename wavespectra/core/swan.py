@@ -234,7 +234,7 @@ def read_tab(filename, toff=0):
     Args:
         filename (str): name of SWAN tab file to read
         toff (float): timezone offset in hours
-    
+
     Returns:
         Pandas DataFrame object
 

@@ -1,7 +1,7 @@
 !    -*- f90 -*-
 ! Note: the context of this file is case sensitive.
 
-python module specpart ! in 
+python module specpart ! in
     interface  ! in :specpart
         module specpart ! in :specpart:specpart.f90
             integer public,optional :: ihmax=200
@@ -13,7 +13,7 @@ python module specpart ! in
                 integer :: partition
             end subroutine partition
         end module specpart
-    end interface 
+    end interface
 end python module specpart
 
 ! This file was auto-generated with f2py (version:2).

@@ -39,7 +39,7 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
     dset['spdir'] = dset['spdir'].squeeze()
     dset = dset.swap_dims({"nfreq": "spsig",
                            "ndir": "spdir"})
-    
+
     dset = dset.rename(
         {
             "spsig": attrs.FREQNAME,
@@ -70,7 +70,7 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
         dset[attrs.DIRNAME] = dset[attrs.DIRNAME] * R2D # dim var neesds explicit assign in py3
         dset[attrs.SPECNAME] /= R2D
         # we found that the directions are in the trigonometric convection. Converting:
-        dset[attrs.DIRNAME] = (270 - dset[attrs.DIRNAME] + 360) % 360  
+        dset[attrs.DIRNAME] = (270 - dset[attrs.DIRNAME] + 360) % 360
         dset = dset.sortby(attrs.DIRNAME, ascending=True)
     # Returns only selected variables, transposed
     to_drop = [
