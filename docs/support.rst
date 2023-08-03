@@ -10,8 +10,7 @@ Wavespectra is an open source project developed by `MetOcean Solutions`_.
 The easiest way to get help with the project is to open an issue on Github_.
 
 Any contributions are welcome. Please feel free to fork this project and create
-pull requests, or contact Jorge Perez with any specific queries
-(j.perez@metocean.co.nz).
+pull requests.
 
 
 .. _Github: https://github.com/metocean/wavespectra/issues
