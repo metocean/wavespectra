@@ -1,4 +1,4 @@
 netCDF4
 sympy
 dbfread
-matplotlib
+matplotlib<3.4
