@@ -1,9 +1,10 @@
-import sys
-import os
 import logging
-import pytest
+import os
+import sys
 import time
+
 import numpy as np
+import pytest
 from numpy.testing import assert_array_almost_equal
 
 plot = False

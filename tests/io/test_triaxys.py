@@ -1,7 +1,8 @@
 import os
 import shutil
-import pytest
 from tempfile import mkdtemp
+
+import pytest
 
 from wavespectra import read_triaxys
 from wavespectra.core.attributes import attrs

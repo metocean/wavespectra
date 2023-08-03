@@ -26,8 +26,8 @@ from wavespectra.plot import _PlotMethods
 
 try:
     from sympy import Symbol
-    from sympy.utilities.lambdify import lambdify
     from sympy.parsing.sympy_parser import parse_expr
+    from sympy.utilities.lambdify import lambdify
 except ImportError:
     warnings.warn(
         'Cannot import sympy, install "extra" dependencies for full functionality'

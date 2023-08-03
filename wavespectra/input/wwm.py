@@ -92,6 +92,7 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
 
 if __name__ == "__main__":
     import os
+
     import matplotlib.pyplot as plt
     import xarray as xr
 

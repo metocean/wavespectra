@@ -24,18 +24,12 @@ try:
     import matplotlib.pyplot as plt
     from matplotlib.projections import PolarAxes
     from xarray.plot.facetgrid import _easy_facetgrid
-    from xarray.plot.utils import (
-        _add_colorbar,
-        _ensure_plottable,
-        _infer_interval_breaks,
-        _infer_xy_labels,
-        _process_cmap_cbar_kwargs,
-        _rescale_imshow_rgb,
-        _resolve_intervals_2dplot,
-        _update_axes,
-        import_matplotlib_pyplot,
-        label_from_attrs,
-    )
+    from xarray.plot.utils import (_add_colorbar, _ensure_plottable,
+                                   _infer_interval_breaks, _infer_xy_labels,
+                                   _process_cmap_cbar_kwargs,
+                                   _rescale_imshow_rgb,
+                                   _resolve_intervals_2dplot, _update_axes,
+                                   import_matplotlib_pyplot, label_from_attrs)
 except ImportError:
     warnings.warn("Some failed imports. Limited plot capabilities")
 
@@ -722,6 +716,7 @@ def pcolormesh(
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+
     from wavespectra import read_swan
 
     dset = read_swan("../tests/sample_files/swanfile.spec", as_site=True)

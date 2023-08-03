@@ -1,10 +1,10 @@
 """Interpolate stations."""
-import numpy as np
-import xarray as xr
 import logging
 
-from wavespectra.core.attributes import attrs, set_spec_attributes
+import numpy as np
+import xarray as xr
 
+from wavespectra.core.attributes import attrs, set_spec_attributes
 
 logger = logging.getLogger(__name__)
 

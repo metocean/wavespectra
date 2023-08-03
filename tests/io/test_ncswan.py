@@ -1,8 +1,9 @@
 import os
-import xarray as xr
 import shutil
-import pytest
 from tempfile import mkdtemp
+
+import pytest
+import xarray as xr
 
 from wavespectra import read_ncswan
 from wavespectra.core.attributes import attrs

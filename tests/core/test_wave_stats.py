@@ -1,7 +1,8 @@
 """Unit testing for stats methods in SpecArray."""
 import os
-import pytest
+
 import pandas as pd
+import pytest
 
 from wavespectra import read_swan
 

@@ -1,6 +1,7 @@
+from collections import OrderedDict
+
 import numpy as np
 import xarray as xr
-from collections import OrderedDict
 
 from wavespectra.core.attributes import attrs, set_spec_attributes
 

@@ -21,9 +21,9 @@ def _import_read_functions(pkgname="input"):
         - they are named as read_{modname}
 
     """
+    import glob
     import os
     import sys
-    import glob
     from importlib import import_module
 
     here = os.path.dirname(os.path.abspath(__file__))

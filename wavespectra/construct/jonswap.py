@@ -1,10 +1,7 @@
 import numpy as np
-from wavespectra.construct.helpers import (
-    spread,
-    check_coordinates,
-    arrange_inputs,
-    make_dataset,
-)
+
+from wavespectra.construct.helpers import (arrange_inputs, check_coordinates,
+                                           make_dataset, spread)
 
 
 def jonswap(

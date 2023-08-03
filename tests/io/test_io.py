@@ -1,19 +1,12 @@
 import os
 import shutil
-import pytest
 from tempfile import mkdtemp
 
+import pytest
+
+from wavespectra import (read_cf_json, read_ncswan, read_netcdf, read_octopus,
+                         read_swan, read_triaxys, read_ww3, read_ww3_msl)
 from wavespectra.core.attributes import attrs
-from wavespectra import (
-    read_swan,
-    read_netcdf,
-    read_ww3,
-    read_ww3_msl,
-    read_octopus,
-    read_cf_json,
-    read_ncswan,
-    read_triaxys,
-)
 
 FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sample_files")
 

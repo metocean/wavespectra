@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from wavespectra import read_swan

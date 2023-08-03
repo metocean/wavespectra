@@ -1,10 +1,11 @@
 """Unit testing for SpecDataset wrapper around DataArray."""
 import os
-import pytest
-import numpy as np
 
-from wavespectra.core.attributes import attrs
+import numpy as np
+import pytest
+
 from wavespectra import read_ww3
+from wavespectra.core.attributes import attrs
 from wavespectra.core.select import Coordinates
 
 FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sample_files")

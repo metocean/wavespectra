@@ -9,7 +9,7 @@ import six
 import xarray as xr
 
 from wavespectra.core.attributes import attrs
-from wavespectra.core.select import sel_idw, sel_nearest, sel_bbox
+from wavespectra.core.select import sel_bbox, sel_idw, sel_nearest
 from wavespectra.specarray import SpecArray
 
 here = os.path.dirname(os.path.abspath(__file__))
