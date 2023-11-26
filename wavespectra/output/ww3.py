@@ -78,7 +78,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=False):
     # for "time" variable
     if "time" in other:
         other.time.encoding["units"] = TIME_UNITS
-        other.time.encoding['dtype'] = 'float32'
+        other.time.encoding['dtype'] = 'float64'
         times = other.time.to_index().to_pydatetime()
 
         if len(times) > 1:
