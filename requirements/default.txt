@@ -7,4 +7,4 @@ toolz
 sortedcontainers
 scipy
 attrdict
-pyaml
+pyaml==21.10.1
