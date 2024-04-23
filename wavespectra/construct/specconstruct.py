@@ -136,9 +136,9 @@ def calc_Sf_ochihubble(freqs, hs, fp, lam):
     """
     w = 2 * np.pi * freqs
     w0 = 2 * np.pi * fp
-    B = xr.ufuncs.maximum(lam, 0.01) + 0.25
+    B = xr.apply_ufunc(np.maximum, lam, 0.01) + 0.25
     A = 0.5 * np.pi * hs ** 2 * ((B * w0 ** 4) ** lam / gamma_fun(lam))
-    a = xr.ufuncs.minimum((w0 / w) ** 4, 100.0)
+    a = xr.apply_ufunc(np.minimum, (w0 / w) ** 4, 100.0)
     Sf = A * np.exp(-B * a) / (w ** (4.0 * B))
     return Sf.fillna(0)
 

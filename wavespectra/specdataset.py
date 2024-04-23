@@ -6,6 +6,7 @@ import types
 import warnings
 
 import six
+import numpy as np
 import xarray as xr
 
 from wavespectra.core.attributes import attrs
@@ -144,7 +145,7 @@ class SpecDataset(object):
         lons = self.dset[attrs.LONNAME].values
         lats = self.dset[attrs.LATNAME].values
         xdist0 = abs(lons % 360 - lon % 360)
-        xdist = xr.ufuncs.minimum(xdist0, 360 - xdist0)
+        xdist = xr.apply_ufunc(np.minimum, xdist0, 360-xdist0)
         ydist = abs(lats - lat)
         dist2 = xdist ** 2 + ydist ** 2
         isite = [int(dist2.argmin())]
