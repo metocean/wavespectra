@@ -1,9 +1,0 @@
-numpy
-pandas
-xarray>=0.16.1,<2022.06.0
-python-dateutil
-dask>=0.17.1
-toolz
-sortedcontainers
-scipy
-pyaml

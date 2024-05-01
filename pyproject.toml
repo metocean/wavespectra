@@ -1,0 +1,56 @@
+[build-system]
+requires = ["numpy", "setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wavespectra"
+description = "Ocean wave spectra tools"
+readme = "README.rst"
+license = { file = "LICENSE.txt" }
+keywords = ["wave", "spectra", "ocean", "xarray", "statistics", "analysis"]
+authors = [
+  { name = "MetOcean Solutions", email="support@metocean.co.nz" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+requires-python = ">=3.8,<3.12"
+dependencies = [
+    "numpy",
+    "pandas",
+    "xarray>=0.16.1,<=2023.01.0",
+    "python-dateutil",
+    "dask>=0.17.1",
+    "toolz",
+    "sortedcontainers",
+    "scipy",
+    "pyaml",
+]
+dynamic = ["version"]
+
+[project.urls]
+"Funding" = "http://www.metocean.co.nz"
+"Say Thanks!" = "http://www.metocean.co.nz"
+"Source" = "https://github.com/metocean/wavespectra"
+"Bug Reports" = "https://github.com/metocean/wavespectra/issues"
+
+
+[project.optional-dependencies]
+extra = ["netCDF4", "sympy", "dbfread", "matplotlib<3.4"]
+metocean = ["cfjson@git+https://github.com/metocean/cf-json"]
+test = ["pytest"]
+
+[tool.setuptools.package-data]
+"wavespectra.core" = ["*.yml"]
+"wavespectra.output" = ["*.yml"]
+"wavespectra.specpart" = ["specpart.f90", "specpart.pyf"]
+
+[tool.setuptools.dynamic]
+version = {attr = "wavespectra.__version__"}
