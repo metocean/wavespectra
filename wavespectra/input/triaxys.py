@@ -34,7 +34,7 @@ def read_triaxys(filename_or_fileglob, toff=0):
     return txys.dset
 
 
-class Triaxys(object):
+class Triaxys:
     def __init__(self, filename_or_fileglob, toff=0):
         """Read wave spectra file from TRIAXYS buoy.
 
@@ -82,7 +82,7 @@ class Triaxys(object):
         self.construct_dataset()
 
     def open(self):
-        self.stream = open(self.filename, "r")
+        self.stream = open(self.filename)
 
     def close(self):
         if self.stream and not self.stream.closed:
@@ -117,11 +117,11 @@ class Triaxys(object):
             if "ROWS" in line or "COLUMN 2" in line or not line:
                 break
         if not self.header.get("is_triaxys"):
-            raise IOError("Not a TRIAXYS Spectra file.")
+            raise OSError("Not a TRIAXYS Spectra file.")
         if not self.header.get("time"):
-            raise IOError("Cannot parse time")
+            raise OSError("Cannot parse time")
         if self.is_dir is not None and self.is_dir != self.header.get("is_dir"):
-            raise IOError("Cannot merge spectra 2D and spectra 1D")
+            raise OSError("Cannot merge spectra 2D and spectra 1D")
         self.is_dir = self.header.get("is_dir")
 
     def _append_spectrum(self):
@@ -148,7 +148,7 @@ class Triaxys(object):
                     self.spec_data[i, :] = row[-1]
             self._append_spectrum()
         except ValueError as err:
-            raise ValueError("Cannot read {}:\n{}".format(self.filename, err))
+            raise ValueError(f"Cannot read {self.filename}:\n{err}")
 
     def construct_dataset(self):
         self.dset = xr.DataArray(
@@ -188,7 +188,7 @@ class Triaxys(object):
             f0, df, nf = self.header["f0"], self.header["df"], self.header["nf"]
             return list(np.arange(f0, f0 + df * nf, df))
         except Exception as exc:
-            raise IOError("Not enough info to parse frequencies:\n{}".format(exc))
+            raise OSError(f"Not enough info to parse frequencies:\n{exc}")
 
     @property
     def filenames(self):
@@ -197,7 +197,7 @@ class Triaxys(object):
         elif isinstance(self._filename_or_fileglob, str):
             filenames = sorted(glob.glob(self._filename_or_fileglob))
         if not filenames:
-            raise ValueError("No file located in {}".format(self._filename_or_fileglob))
+            raise ValueError(f"No file located in {self._filename_or_fileglob}")
         return filenames
 
 

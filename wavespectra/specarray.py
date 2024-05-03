@@ -40,7 +40,7 @@ _ = np.newaxis
 
 
 @xr.register_dataarray_accessor("spec")
-class SpecArray(object):
+class SpecArray:
     def __init__(self, xarray_obj, dim_map=None):
         """Define spectral attributes."""
         # # Rename spectra coordinates if not 'freq' and/or 'dir'
@@ -220,8 +220,8 @@ class SpecArray(object):
             return attrs.ATTRS[varname]["standard_name"]
         except AttributeError:
             warnings.warn(
-                "Cannot set standard_name for variable {}. "
-                "Ensure it is defined in attributes.yml".format(varname)
+                f"Cannot set standard_name for variable {varname}. "
+                "Ensure it is defined in attributes.yml"
             )
             return ""
 
@@ -230,8 +230,8 @@ class SpecArray(object):
             return attrs.ATTRS[varname]["units"]
         except AttributeError:
             warnings.warn(
-                "Cannot set units for variable {}. "
-                "Ensure it is defined in attributes.yml".format(varname)
+                f"Cannot set units for variable {varname}. "
+                "Ensure it is defined in attributes.yml"
             )
             return ""
 
@@ -403,14 +403,12 @@ class SpecArray(object):
             tp = self.tp()
             dpm = self.dpm()
             scaled = scaled.where(
-                (
-                    (hs >= hs_min)
-                    & (hs <= hs_max)
-                    & (tp >= tp_min)
-                    & (tp <= tp_max)
-                    & (dpm >= dpm_min)
-                    & (dpm <= dpm_max)
-                )
+                (hs >= hs_min)
+                & (hs <= hs_max)
+                & (tp >= tp_min)
+                & (tp <= tp_max)
+                & (dpm >= dpm_min)
+                & (dpm <= dpm_max)
             ).combine_first(self._obj)
         if inplace:
             self._obj.values = scaled.values
@@ -432,8 +430,8 @@ class SpecArray(object):
         ipeak = self._peak(Sf).load()
         fp = self.freq.astype("float64")[ipeak].drop("freq")
         if smooth:
-            f1, f2, f3 = [self.freq[ipeak + i].values for i in [-1, 0, 1]]
-            e1, e2, e3 = [Sf.isel(freq=ipeak + i).values for i in [-1, 0, 1]]
+            f1, f2, f3 = (self.freq[ipeak + i].values for i in [-1, 0, 1])
+            e1, e2, e3 = (Sf.isel(freq=ipeak + i).values for i in [-1, 0, 1])
             s12 = f1 + f2
             q12 = (e1 - e2) / (f1 - f2)
             q13 = (e1 - e3) / (f1 - f3)
@@ -458,7 +456,7 @@ class SpecArray(object):
         fp = self.freq ** mom
         mf = self.dfarr * fp * self._obj
         return self._twod(mf.sum(dim=attrs.FREQNAME, skipna=False)).rename(
-            "mom{:d}".format(mom)
+            f"mom{mom:d}"
         )
 
     def momd(self, mom=0, theta=90.0):
@@ -923,14 +921,14 @@ class SpecArray(object):
             try:
                 stats_func = getattr(spectra.spec, func)
             except:
-                raise IOError(
+                raise OSError(
                     "%s is not implemented as a method in %s"
                     % (func, self.__class__.__name__)
                 )
             if callable(stats_func):
                 params.append(stats_func(**kwargs))
             else:
-                raise IOError(
+                raise OSError(
                     "%s attribute of %s is not callable"
                     % (func, self.__class__.__name__)
                 )

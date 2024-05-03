@@ -9,7 +9,7 @@ from wavespectra import read_swan
 FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sample_files")
 
 
-class TestSpecArray(object):
+class TestSpecArray:
     """Test methods from watershed."""
 
     @classmethod

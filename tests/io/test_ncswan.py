@@ -11,7 +11,7 @@ from wavespectra.core.attributes import attrs
 FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sample_files")
 
 
-class TestNcSwan(object):
+class TestNcSwan:
     """Test output from read_ncswan function looks sound."""
 
     @classmethod

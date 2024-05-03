@@ -172,11 +172,11 @@ def sel_nearest(
         closest_id, closest_dist = coords.nearest(lon, lat)
         if closest_dist > tolerance:
             raise AssertionError(
-                "Nearest site from (lat={}, lon={}) is {:g} deg away but tolerance is {:g} deg.".format(lat, lon, closest_dist, tolerance)
+                f"Nearest site from (lat={lat}, lon={lon}) is {closest_dist:g} deg away but tolerance is {tolerance:g} deg."
             )
         if exact and closest_dist > 0:
             raise AssertionError(
-                "Exact match required but no site at (lat={}, lon={}), nearest site is {} deg away.".format(lat, lon, closest_dist)
+                f"Exact match required but no site at (lat={lat}, lon={lon}), nearest site is {closest_dist} deg away."
             )
         station_ids.append(closest_id)
     if unique:
@@ -223,7 +223,7 @@ def sel_idw(
         closest_ids, closest_dist = coords.nearer(lon, lat, tolerance, max_sites)
         if len(closest_ids) == 0:
             logger.debug(
-                "No stations within {} deg of site (lat={}, lon={}), this site will be masked.".format(tolerance, lat, lon)
+                f"No stations within {tolerance} deg of site (lat={lat}, lon={lon}), this site will be masked."
             )
         # Collect ids and factors of neighbours
         indices = []
@@ -322,10 +322,7 @@ def sel_bbox(dset, lons, lats, tolerance=0.0, dset_lons=None, dset_lats=None):
     if station_ids.size == 0:
         raise ValueError(
             "No site found within bbox defined by "
-            "([{},{}], [{},{}])".format(min(coords._lons) - tolerance,
-                                        minlat,
-                                        max(coords._lons) + tolerance,
-                                        maxlat)
+            f"([{min(coords._lons) - tolerance},{minlat}], [{max(coords._lons) + tolerance},{maxlat}])"
         )
 
     dsout = dset.isel(**{attrs.SITENAME: station_ids})

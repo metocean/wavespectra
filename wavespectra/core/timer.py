@@ -6,7 +6,7 @@ Use it by wrapping blocks of code that you want to time
 import time
 
 
-class Timer(object):
+class Timer:
     """
     Wrap blocks of code to be timed:
     with Timer(msg='Elapsed time to do stuff') as t:
@@ -26,4 +26,4 @@ class Timer(object):
 
     def __exit__(self, *args):
         self.secs = time.time() - self.start
-        print("{}: {:f} sec".format(self.msg, self.secs))
+        print(f"{self.msg}: {self.secs:f} sec")

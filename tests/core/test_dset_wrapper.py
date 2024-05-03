@@ -9,7 +9,7 @@ from wavespectra.core.attributes import attrs
 FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sample_files")
 
 
-class TestDatasetWrapper(object):
+class TestDatasetWrapper:
     """Test SpecDataset wrapper."""
 
     @classmethod

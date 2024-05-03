@@ -18,7 +18,7 @@ def read_cf_json(filename):
         - dset (SpecDataset): spectra dataset object read from json file.
 
     """
-    with open(filename, "r") as stream:
+    with open(filename) as stream:
         spec_dict = json.load(stream)
 
     data = {}
