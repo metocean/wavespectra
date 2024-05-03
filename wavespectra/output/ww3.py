@@ -116,7 +116,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
         ## all encoding attrs will be used from the original data loaded
         pass
     elif compress == False:
-        ## some encoding attrs are kept, ohers either changed or supressed
+        ## some encoding attrs are kept, others either changed or suppressed
         for dkey in list(other.coords) + list(other.data_vars):
             ## changing packing related attrs
             pack_attrs = ['scale_factor', 'add_offset']

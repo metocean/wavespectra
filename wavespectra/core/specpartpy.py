@@ -155,7 +155,7 @@ def partition(spec, ihmax=200):
 
     # 2.  find nearest neighbor of 0 watershed points and replace
     #     use original input to check which group to affiliate with 0
-    #     storing changes first in imd to assure symetry in adjustment.
+    #     storing changes first in imd to assure symmetry in adjustment.
     for _ in range(5):
         watershed0 = np.where(imo == 0)[0]
         if not any(watershed0):

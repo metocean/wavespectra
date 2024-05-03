@@ -37,8 +37,8 @@ class SwanSpecFile:
         self.is_tab = False
         self.buf = None
 
-        extention = os.path.splitext(self.filename)[-1]
-        if extention == ".gz":
+        extension = os.path.splitext(self.filename)[-1]
+        if extension == ".gz":
             fopen = gzip.open
         else:
             fopen = open

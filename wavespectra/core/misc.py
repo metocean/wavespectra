@@ -91,7 +91,7 @@ def interp_spec(inspec, infreq, indir, outfreq=None, outdir=None, method="linear
         method: {'linear', 'nearest', 'cubic'}, method of interpolation to use with griddata
 
     Returns:
-        outspec (2D ndarray): interpolated ouput spectrum E(outfreq,outdir)
+        outspec (2D ndarray): interpolated output spectrum E(outfreq,outdir)
 
     Note:
         If either outfreq or outdir is None or False this coordinate is not interpolated

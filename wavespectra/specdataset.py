@@ -68,7 +68,7 @@ class SpecDataset:
         return re.sub(r"<.+>", f"<{self.__class__.__name__}>", str(self.dset))
 
     def _wrapper(self):
-        """Wraper around SpecArray methods.
+        """Wrapper around SpecArray methods.
 
         Allows calling public SpecArray methods from SpecDataset.
         For example:
@@ -82,7 +82,7 @@ class SpecDataset:
 
     def _load_defaults(self):
         """Load wind and depth values as defaults for the partition method.
-        Allows runnig ds.spec.partition() directly or with keyword args.
+        Allows running ds.spec.partition() directly or with keyword args.
         """
         try:
             assert self.partition.__code__.co_varnames[1:4] == (
@@ -181,9 +181,9 @@ class SpecDataset:
             tolerance (float): Maximum distance between locations and original stations
                 for inexact matches.
             dset_lons (array): Longitude of stations in dset, not required but could
-                help improove speed.
+                help improve speed.
             dset_lats (array): Latitude of stations in dset, not required but could
-                help improove speed.
+                help improve speed.
             kwargs: Extra keywargs to pass to the respective sel function
                 (i.e., `sel_nearest`, `sel_idw`).
         Return:
