@@ -13,7 +13,7 @@ from wavespectra.core.misc import to_nautical
 E2V = 1025 * 9.81
 
 
-class SwanSpecFile(object):
+class SwanSpecFile:
     """Read spectra in SWAN ASCII format."""
 
     def __init__(
@@ -181,12 +181,12 @@ class SwanSpecFile(object):
         strout += "{:40}{}\n".format("AFREQ", "absolute frequencies in Hz")
         strout += "{:6d}{:34}{}\n".format(len(self.freqs), "", "number of frequencies")
         for freq in self.freqs:
-            strout += "{:>11.5f}\n".format(freq)
+            strout += f"{freq:>11.5f}\n"
         # Direction
         strout += "{:40}{}\n".format("NDIR", "spectral nautical directions in degr")
         strout += "{:6d}{:34}{}\n".format(len(self.dirs), "", "number of directions")
         for wdir in self.dirs:
-            strout += "{:>11.4f}\n".format(wdir)
+            strout += f"{wdir:>11.4f}\n"
         # Data
         strout += "QUANT\n{:>6d}{:34}{}\n".format(
             1, "", "number of quantities in table"

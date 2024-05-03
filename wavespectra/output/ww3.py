@@ -58,7 +58,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
     other = other.sortby((90-other[attrs.DIRNAME])%360)
 
     # station_name variable
-    arr = np.array([[c for c in "{:06.0f}".format(s)] + [""] * 10 for s in other.site.values], dtype="|S1")
+    arr = np.array([[c for c in f"{s:06.0f}"] + [""] * 10 for s in other.site.values], dtype="|S1")
     other["station_name"] = xr.DataArray(
                                 data=arr,
                                 coords={
@@ -85,12 +85,12 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
 
         if len(times) > 1:
             hours = round((times[1] - times[0]).total_seconds() / 3600)
-            other.attrs.update({"field_type": "{}-hourly".format(hours)})
+            other.attrs.update({"field_type": f"{hours}-hourly"})
 
         other.attrs.update(
             {
-            "start_date": "{:%Y-%m-%d %H:%M:%S}".format(min(times)),
-            "stop_date": "{:%Y-%m-%d %H:%M:%S}".format(max(times)),
+            "start_date": f"{min(times):%Y-%m-%d %H:%M:%S}",
+            "stop_date": f"{max(times):%Y-%m-%d %H:%M:%S}",
             }
         )
 

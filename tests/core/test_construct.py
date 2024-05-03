@@ -23,7 +23,7 @@ def integrate_2d_hs(freqs, dirs, S):
     return 4 * sum2 ** 0.5
 
 
-class TestSpecConstruct(object):
+class TestSpecConstruct:
     @pytest.mark.parametrize("hs, tp, dp", [(1, 10, 0), ([1, 3], [5, 12], [10, 40])])
     def test_specconstruct_scalar(self, hs, tp, dp):
         spec_info = {
@@ -37,7 +37,7 @@ class TestSpecConstruct(object):
         assert hs_out == pytest.approx(hs_in, rel=1e-3)
 
 
-class TestJonswap(object):
+class TestJonswap:
     def hs(self, tp, alpha, gamma=3.3, df=0.02):
         """Calculate 1D JONSWAP."""
         f = np.arange(df, 1.0, df)
@@ -96,7 +96,7 @@ class TestJonswap(object):
     #         plt.show()
 
 
-class TestOchiHubble(object):
+class TestOchiHubble:
     def gamma(self, val):
         return (
             np.sqrt(2.0 * np.pi / val)
@@ -106,7 +106,7 @@ class TestOchiHubble(object):
     def hs(self, hs, tp, l, df=0.02):
         """Calculate 1D OH."""
         w = 2 * np.pi * np.arange(df, 1.0, df)
-        S = np.zeros((len(w)))
+        S = np.zeros(len(w))
         for i, H in enumerate(hs):
             # Create 1D spectrum
             w0 = 2 * np.pi / tp[i]

@@ -11,7 +11,7 @@ from wavespectra.core.attributes import attrs
 FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sample_files")
 
 
-class TestIO(object):
+class TestIO:
     """Test reading and writing of different file formats.
 
     Extend IO tests by adding tuple to parametrize, e.g.:
@@ -51,8 +51,8 @@ class TestIO(object):
             self._check()
         else:
             print(
-                "No output method defined for {}, "
-                "skipping output tests".format(filename)
+                f"No output method defined for {filename}, "
+                "skipping output tests"
             )
 
     def _read(self):

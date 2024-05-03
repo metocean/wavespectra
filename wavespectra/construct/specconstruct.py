@@ -190,7 +190,7 @@ def calc_Dth_normal(dirs, dp, dspr):
 
 
 @xr.register_dataset_accessor("construct")
-class SpecConstruct(object):
+class SpecConstruct:
     def __init__(self, xarray_obj):
         self._obj = xarray_obj
 

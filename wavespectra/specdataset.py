@@ -22,7 +22,7 @@ class Plugin(type):
     def __new__(cls, name, bases, dct):
         modules = [
             __import__(
-                "wavespectra.output.{}".format(os.path.splitext(fname)[0]),
+                f"wavespectra.output.{os.path.splitext(fname)[0]}",
                 fromlist=["*"],
             )
             for fname in os.listdir(os.path.join(here, "output"))
@@ -40,7 +40,7 @@ class Plugin(type):
 
 @xr.register_dataset_accessor("spec")
 @six.add_metaclass(Plugin)
-class SpecDataset(object):
+class SpecDataset:
     """Wrapper around the xarray dataset.
 
     Plugin functions defined in wavespectra/output/<module>
@@ -65,7 +65,7 @@ class SpecDataset(object):
         return getattr(self.dset, attr)
 
     def __repr__(self):
-        return re.sub(r"<.+>", "<{}>".format(self.__class__.__name__), str(self.dset))
+        return re.sub(r"<.+>", f"<{self.__class__.__name__}>", str(self.dset))
 
     def _wrapper(self):
         """Wraper around SpecArray methods.
@@ -114,9 +114,7 @@ class SpecDataset(object):
         unsupported_dims = set(dset[attrs.SPECNAME].dims) - set(self.supported_dims)
         if unsupported_dims:
             raise NotImplementedError(
-                "Dimensions {} are not supported by {} method".format(
-                    unsupported_dims, sys._getframe().f_back.f_code.co_name
-                )
+                f"Dimensions {unsupported_dims} are not supported by {sys._getframe().f_back.f_code.co_name} method"
             )
 
         # If grid reshape into site, if neither define fake site dimension
@@ -140,7 +138,7 @@ class SpecDataset(object):
         """
         if method not in (None, "nearest"):
             raise ValueError(
-                "Invalid method. Expecting None or nearest. Got {}".format(method)
+                f"Invalid method. Expecting None or nearest. Got {method}"
             )
         lons = self.dset[attrs.LONNAME].values
         lats = self.dset[attrs.LATNAME].values
@@ -151,9 +149,7 @@ class SpecDataset(object):
         isite = [int(dist2.argmin())]
         if (method is None) and (dist2[isite] > 0):
             raise ValueError(
-                "lon={:f}, lat={:f} not found. Use method='nearest' to get lon={:f}, lat={:f}".format(
-                    lon, lat, lons[isite][0], lats[isite][0]
-                )
+                f"lon={lon:f}, lat={lat:f} not found. Use method='nearest' to get lon={lons[isite][0]:f}, lat={lats[isite][0]:f}"
             )
         indexersdict = {
             k: isite
@@ -210,7 +206,7 @@ class SpecDataset(object):
             func = funcs[method]
         except KeyError:
             raise ValueError(
-                "Method '{}' not supported, valid ones are {}".format(method, list(funcs.keys()))
+                f"Method '{method}' not supported, valid ones are {list(funcs.keys())}"
             )
         if method is None:
             kwargs.update({"exact": True})
