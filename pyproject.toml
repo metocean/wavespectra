@@ -45,7 +45,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 extra = ["netCDF4", "sympy", "dbfread", "matplotlib<3.4"]
 metocean = ["cfjson@git+https://github.com/metocean/cf-json"]
-test = ["pytest"]
+test = ["pytest", "ipython"]
 
 [tool.setuptools.package-data]
 "wavespectra.core" = ["*.yml"]
