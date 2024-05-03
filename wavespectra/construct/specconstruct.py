@@ -71,7 +71,7 @@ def prepare_reconstruction(spec_info, base_dset=None):
 
 
 def finite_depth(freqs, dpt):
-    """Factors for modifiying JONSWAP spectra in shallow water (TMA spectrum)
+    """Factors for modifying JONSWAP spectra in shallow water (TMA spectrum)
 
     Arguments:
         freqs: frequencies

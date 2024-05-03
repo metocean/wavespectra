@@ -78,7 +78,7 @@
       integer                 :: i, in, iv, iihmax, nnspec
       integer                 :: numv(iihmax), iaddr(iihmax),iorder(nnspec)
 ! -------------------------------------------------------------------- /
-! 1.  occurences per height
+! 1.  occurrences per height
 !
       numv   = 0
       do i=1, nspec
@@ -421,7 +421,7 @@
 ! -------------------------------------------------------------------- /
 ! 2.  find nearest neighbor of 0 watershed points and replace
 !     use original input to check which group to affiliate with 0
-!     soring changes first in imd to assure symetry in adjustment.
+!     sorting changes first in imd to assure symmetry in adjustment.
 !
       do j=1, 5
         imd    = imo

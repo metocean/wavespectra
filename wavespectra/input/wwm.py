@@ -67,7 +67,7 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
         dset[attrs.SPECNAME] = dset[attrs.SPECNAME] * dset[attrs.FREQNAME] * (2 * np.pi)
         dset[attrs.FREQNAME] = dset[attrs.FREQNAME] / (2 * np.pi)  # convert rad to Hz
         # Converting directions from radians
-        dset[attrs.DIRNAME] = dset[attrs.DIRNAME] * R2D # dim var neesds explicit assign in py3
+        dset[attrs.DIRNAME] = dset[attrs.DIRNAME] * R2D # dim var needs explicit assign in py3
         dset[attrs.SPECNAME] /= R2D
         # we found that the directions are in the trigonometric convection. Converting:
         dset[attrs.DIRNAME] = (270 - dset[attrs.DIRNAME] + 360) % 360

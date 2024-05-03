@@ -24,7 +24,7 @@ def read_netcdf(
         - chunks (dict): chunk sizes for dimensions in dataset. By default
           dataset is loaded using single chunk for all dimensions (see
           xr.open_mfdataset documentation).
-        - <coord>name :: coordinate name in netcdf, used for standarising
+        - <coord>name :: coordinate name in netcdf, used for standardising
           dataset.
 
     Returns:

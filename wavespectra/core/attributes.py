@@ -1,6 +1,6 @@
-"""Standarise SpecArray attributes.
+"""Standardise SpecArray attributes.
 
-attrs (dict): standarised names for spectral variables, standard_names and units
+attrs (dict): standardised names for spectral variables, standard_names and units
 """
 # from collections import OrderedDict
 import os
@@ -43,7 +43,7 @@ with open(os.path.join(HERE, "attributes.yml")) as stream:
 
 def set_spec_attributes(dset):
     """
-    Standarise CF attributes in specarray variables
+    Standardise CF attributes in specarray variables
     """
     for varname, varattrs in attrs.ATTRS.items():
         try:

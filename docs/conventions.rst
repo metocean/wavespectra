@@ -20,7 +20,7 @@ requires some conventions around special coordinates and variables:
 Attributes
 ----------
 
-Pre-defined names and units for these and other coordintes and variables are
+Pre-defined names and units for these and other coordinates and variables are
 available from :py:mod:`wavespectra.core.attributes`. This module defines
 variable names and some CF attributes by loading information from
 `attributes.yml`_ file. The attributes can be accessed for example as:
@@ -35,7 +35,7 @@ variable names and some CF attributes by loading information from
     In [2]: attrs.ATTRS.hs
     Out[2]: AttrDict({'units': 'm', 'standard_name': 'sea_surface_wave_significant_height'})
 
-The module also provides a function to standarise coordinate and variable
+The module also provides a function to standardise coordinate and variable
 attributes in a Dataset object using the information defined in `attributes.yml`_:
 
 .. autofunction:: wavespectra.core.attributes.set_spec_attributes

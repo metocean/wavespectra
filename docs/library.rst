@@ -8,7 +8,7 @@ Wavespectra
 
 Wavespectra is a library for processing ocean wave spectral data. It provides
 reading and writing of common spectral data formats, calculation of common
-integrated wave paramaters, several methods of spectral partitioning and
+integrated wave parameters, several methods of spectral partitioning and
 spectral manipulation in a package focussed on speed and efficiency for large
 numbers of spectra.
 
@@ -55,7 +55,7 @@ Using accessors in this way provides an elegant way to extend and leverage the
 power of `xarray`_.  In common usage, this mechanism is largely transparent,
 with the provided reading functions , returning the above classes from which
 the spectral methods can be directly accessed (see :ref:`Input`).  For example,
-to read a swan spectral file and calculate the corresponing significant wave
+to read a swan spectral file and calculate the corresponding significant wave
 heights:
 
 .. code:: python
