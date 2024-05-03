@@ -80,7 +80,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
     # for "time" variable
     if "time" in other:
         other.time.encoding["units"] = TIME_UNITS
-        other.time.encoding['dtype'] = 'float32'
+        other.time.encoding["dtype"] = "float32"
         times = other.time.to_index().to_pydatetime()
 
         if len(times) > 1:
@@ -119,34 +119,34 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
         ## some encoding attrs are kept, others either changed or suppressed
         for dkey in list(other.coords) + list(other.data_vars):
             ## changing packing related attrs
-            pack_attrs = ['scale_factor', 'add_offset']
+            pack_attrs = ["scale_factor", "add_offset"]
             if all(attr in other[dkey].encoding for attr in pack_attrs):
-                other[dkey].encoding['dtype'] = 'float32'
-                other[dkey].encoding['scale_factor'] = 1.0
-                other[dkey].encoding['add_offset'] = 0.0
+                other[dkey].encoding["dtype"] = "float32"
+                other[dkey].encoding["scale_factor"] = 1.0
+                other[dkey].encoding["add_offset"] = 0.0
                 ## ensure adequate missing/fillvalues
                 fillvalue =  9.96921e+36
-                for akey in ['missing_value', '_FillValue']:
+                for akey in ["missing_value", "_FillValue"]:
                     if akey not in other[dkey].encoding \
                     or other[dkey].encoding[akey] != fillvalue:
                         other[dkey].encoding[akey] = fillvalue
 
             ## removing compression/chunking attrs if any
             compress_attrs = [
-                'complevel',
-                'zlib',
-                'shuffle',
-                'fletcher32',
-                'original_shape',
-                'chunksizes',
-                'contiguous']
+                "complevel",
+                "zlib",
+                "shuffle",
+                "fletcher32",
+                "original_shape",
+                "chunksizes",
+                "contiguous"]
             for popkey in compress_attrs:
                 if popkey in other[dkey].encoding.keys():
                     other[dkey].encoding.pop(popkey)
     elif compress == None:
         ## for backwards compatibility
-        if 'efth' in other and '_FillValue' not in other.efth.encoding:
-            other.efth.encoding['_FillValue'] = 9.96921e+36
+        if "efth" in other and "_FillValue" not in other.efth.encoding:
+            other.efth.encoding["_FillValue"] = 9.96921e+36
 
     # Dump file to disk
     other.to_netcdf(filename)

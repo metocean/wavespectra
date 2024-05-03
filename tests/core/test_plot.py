@@ -7,7 +7,7 @@ from wavespectra import read_swan
 FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../sample_files")
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def load_specdataset():
     """Load SpecDset but skip test if matplotlib is not installed."""
     pytest.importorskip("matplotlib")
