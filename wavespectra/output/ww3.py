@@ -143,7 +143,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
             for popkey in compress_attrs:
                 if popkey in other[dkey].encoding.keys():
                     other[dkey].encoding.pop(popkey)
-    elif compress == None:
+    elif compress is None:
         ## for backwards compatibility
         if "efth" in other and "_FillValue" not in other.efth.encoding:
             other.efth.encoding["_FillValue"] = 9.96921e+36

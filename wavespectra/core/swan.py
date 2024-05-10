@@ -245,7 +245,7 @@ def read_tab(filename, toff=0):
         delim_whitespace=True,
         skiprows=[0, 1, 2, 3, 5, 6],
         parse_dates=[0],
-        date_parser=dateparse,
+        date_format="%Y%m%d.%H%M%S",
         index_col=0,
     )
     df.index.name = attrs.TIMENAME

@@ -88,7 +88,7 @@ def read_ncswan(
     # Ensure site is a coordinate
     if attrs.SITENAME in dset.dims and attrs.SITENAME not in dset.coords:
         dset[attrs.SITENAME] = np.arange(1, len(dset[attrs.SITENAME]) + 1)
-    return dset.drop(to_drop)
+    return dset.drop_vars(to_drop)
 
 
 if __name__ == "__main__":

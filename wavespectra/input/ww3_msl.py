@@ -30,7 +30,7 @@ def read_ww3_msl(filename_or_fileglob, chunks={}):
         {"freq": attrs.FREQNAME, "dir": attrs.DIRNAME, "wsp": attrs.WSPDNAME}
     )
     dset[attrs.SPECNAME] = (dset["specden"].astype("float32") + 127.0) * dset["factor"]
-    dset = dset.drop(["specden", "factor", "df"])
+    dset = dset.drop_vars(["specden", "factor", "df"])
     # Assign site coordinate so they will look like those read from native ww3 files
     dset[attrs.SITENAME] = np.arange(1.0, dset.site.size + 1)
     set_spec_attributes(dset)

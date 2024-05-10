@@ -87,7 +87,7 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
         ]
     ]
     dims = [d for d in ["time", "site", "freq", "dir"] if d in dset.efth.dims]
-    return dset.drop(to_drop).transpose(*dims)
+    return dset.drop_vars(to_drop).transpose(*dims)
 
 
 if __name__ == "__main__":
