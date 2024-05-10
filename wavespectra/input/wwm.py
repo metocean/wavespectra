@@ -35,8 +35,8 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
 
     # Assigning spectral variables to their
     # corresponding dimensions
-    dset['spsig'] = dset['spsig'].squeeze()
-    dset['spdir'] = dset['spdir'].squeeze()
+    dset["spsig"] = dset["spsig"].squeeze()
+    dset["spdir"] = dset["spdir"].squeeze()
     dset = dset.swap_dims({"nfreq": "spsig",
                            "ndir": "spdir"})
 
