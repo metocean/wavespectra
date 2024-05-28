@@ -19,35 +19,21 @@ The source code is currently hosted on GitHub at: https://github.com/metocean/wa
 
 Install from sources
 ~~~~~~~~~~~~~~~~~~~~
-Install requirements. Navigate to the base root of wavespectra_ and execute:
+Navigate to the base root of wavespectra_ and execute:
 
 .. code:: bash
 
    # Default install, miss some dependencies and functionality
-   pip install -r requirements/default.txt
+   pip install .
 
-   # Also, for complete install
-   pip install -r requirements/extra.txt
+   # More complete install
+   pip install ".[extra]"
 
-   # Also, for testing requirements
-   pip install -r requirements/test.txt
+   # Also, adding testing
+   pip install ".[extra,test]"
+   python -m pytest
 
-Then install wavespectra:
-
-.. code:: bash
-
-   python setup.py install
-
-   # Run pytest integration
-   python setup.py test
-
-Alternatively, to install in `development mode`_:
-
-.. code:: bash
-
-   pip install -e .
-
-Windows installation
+Windows installation:
 ~~~~~~~~~~~~~~~~~~~~
 Currently there are some issues with the Fortran version of spectral partitioning in Windows systems. A workaround is described in:
 https://github.com/metocean/wavespectra/issues/28#issuecomment-712503611
