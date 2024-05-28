@@ -1,6 +1,6 @@
 [build-system]
-requires = ["numpy", "setuptools"]
-build-backend = "setuptools.build_meta"
+build-backend = "mesonpy"
+requires = ["meson-python"]
 
 [project]
 name = "wavespectra"
@@ -46,11 +46,3 @@ dynamic = ["version"]
 extra = ["netCDF4", "sympy", "dbfread", "matplotlib<3.4"]
 metocean = ["cfjson@git+https://github.com/metocean/cf-json"]
 test = ["pytest", "ipython"]
-
-[tool.setuptools.package-data]
-"wavespectra.core" = ["*.yml"]
-"wavespectra.output" = ["*.yml"]
-"wavespectra.specpart" = ["specpart.f90", "specpart.pyf"]
-
-[tool.setuptools.dynamic]
-version = {attr = "wavespectra.__version__"}

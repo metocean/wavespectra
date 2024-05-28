@@ -33,8 +33,6 @@ Navigate to the base root of wavespectra_ and execute:
    pip install ".[extra,test]"
    python -m pytest
 
-At the moment install in `development mode`_ fails because of the fortran specpart extension.
-
 Windows installation:
 ~~~~~~~~~~~~~~~~~~~~
 Currently there are some issues with the Fortran version of spectral partitioning in Windows systems. A workaround is described in:
