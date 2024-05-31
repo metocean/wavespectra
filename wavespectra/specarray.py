@@ -775,7 +775,7 @@ class SpecArray:
             )
 
         if fortran_code:
-            from wavespectra.specpart import specpart
+            from specpart.specpart import specpart
         else:
             from wavespectra.core import specpartpy as specpart
 

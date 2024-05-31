@@ -35,7 +35,7 @@ py.extension_module(
     include_directories: inc_np,
     dependencies : py_dep,
     install: true,
-    subdir: 'wavespectra',
+    subdir: 'specpart',
 )
 
 install_subdir('wavespectra', install_dir: py.get_install_dir())
