@@ -775,12 +775,8 @@ class SpecArray:
             )
 
         if fortran_code:
-            try:
-                from wavespectra.specpart import specpart
-            except ImportError:
-                fortran_code = False
-
-        if not fortran_code:
+            from wavespectra.specpart import specpart
+        else:
             from wavespectra.core import specpartpy as specpart
 
         # Initialise output - one SpecArray for each partition
