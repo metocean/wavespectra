@@ -379,7 +379,7 @@ class SpecArray(object):
         tp_max=np.inf,
         dpm_min=-np.inf,
         dpm_max=np.inf,
-    ):
+        ):
         """Scale spectra using equation based on Significant Wave Height Hs.
 
         Args:
