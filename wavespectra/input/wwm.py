@@ -31,7 +31,7 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
 
     """
     dset = xr.open_mfdataset(filename_or_fileglob, chunks=chunks)
-    _units = dset.ac.attrs.get("units", "")
+    _units = dset.AC.attrs.get("units", "")
     dset = dset.rename(
         {
             "nfreq": attrs.FREQNAME,
