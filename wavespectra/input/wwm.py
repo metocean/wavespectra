@@ -37,7 +37,7 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
             "nfreq": attrs.FREQNAME,
             "ndir": attrs.DIRNAME,
             "nbstation": attrs.SITENAME,
-            "ac": attrs.SPECNAME,
+            "AC": attrs.SPECNAME,
             "lon": attrs.LONNAME,
             "lat": attrs.LATNAME,
             "DEP": attrs.DEPNAME,
