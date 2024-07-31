@@ -1,6 +1,6 @@
 numpy
 pandas
-xarray>=0.16.1,<2022.06.0
+xarray>=0.16.1,<=2023.01.0
 python-dateutil
 dask>=0.17.1
 toolz
