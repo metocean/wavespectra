@@ -1063,7 +1063,7 @@ class SpecArray(object):
         distribution function as a nonlinear correction to the Rayleigh distribution:
         when the kurtosis tends to 3, the expected Gaussian value, then the dis-
         tribution function tends to the Rayleigh distribution.
-        That's why it is used the cumulant k40, which represents from 3 (Gaussian).
+        That's why it is used the cumulant k40, which represents deviation from 3 (Gaussian).
         """
         return (np.pi/np.sqrt(3) * (self.BFI2D()**2)).rename("kurtosis")
 
