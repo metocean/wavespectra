@@ -18,7 +18,8 @@
 
       contains
 
-      subroutine partinit(nk,nth)
+      subroutine partinit(nk, nth)
+      integer, intent(in) :: nk, nth
 
       if ( mk.eq.nk .and. mth.eq.nth ) return
       nspec=nk*nth
@@ -33,12 +34,13 @@
       end subroutine partinit
 
 
-      subroutine partition(spec,ipart,nk,nth)
-
-      real, intent(in) :: spec(nk,nth)
-      integer, intent(out) :: ipart(nk,nth)
-      integer iang,nk,nth
-      real zmin,zmax
+      subroutine partition(spec, ipart, nk, nth)
+      
+      integer, intent(in) :: nk, nth
+      real, intent(in) :: spec(nk, nth)
+      integer, intent(out) :: ipart(nk, nth)
+      integer :: iang
+      real :: zmin, zmax
 
       call partinit(nk,nth)
 
