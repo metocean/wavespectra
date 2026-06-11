@@ -68,8 +68,8 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
                                 dims=("site", "string16"),
                             )
 
-    # Renaming variables
-    mapping = {v: k for k, v in MAPPING.items() if v in self.variables}
+    # Renaming variables (skip no-ops to avoid xarray index warning)
+    mapping = {v: k for k, v in MAPPING.items() if v in self.variables and v != k}
     other = other.rename(mapping)
 
     # Setting attributes
@@ -125,7 +125,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
                 other[dkey].encoding["scale_factor"] = 1.0
                 other[dkey].encoding["add_offset"] = 0.0
                 ## ensure adequate missing/fillvalues
-                fillvalue =  9.96921e+36
+                fillvalue = np.float32(9.96921e+36)
                 for akey in ["missing_value", "_FillValue"]:
                     if akey not in other[dkey].encoding \
                     or other[dkey].encoding[akey] != fillvalue:
@@ -146,7 +146,7 @@ def to_ww3(self, filename, ncformat="NETCDF4", compress=None):
     elif compress is None:
         ## for backwards compatibility
         if "efth" in other and "_FillValue" not in other.efth.encoding:
-            other.efth.encoding["_FillValue"] = 9.96921e+36
+            other.efth.encoding["_FillValue"] = np.float32(9.96921e+36)
 
     # Dump file to disk
     other.to_netcdf(filename)
