@@ -94,9 +94,9 @@ def read_hot_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
     """Read spectra from a WWM hotstart file (wwm_hot_out.nc).
 
     Hotstart files differ from WWM station output: action density is stored on
-    mesh nodes (mnp dim) with integer frequency/direction index dimensions, and
-    SPSIG/SPDIR are stored as separate coordinate variables rather than dim
-    coordinates.
+    mesh nodes (mnp dim) with integer frequency/direction index dimensions.
+    Frequencies and directions are reconstructed from frlow/frhigh scalars and
+    dimension sizes rather than read from explicit SPSIG/SPDIR variables.
 
     Args:
         - filename_or_fileglob (str): filename or fileglob specifying multiple
@@ -113,6 +113,10 @@ def read_hot_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
     """
     dset = xr.open_mfdataset(filename_or_fileglob, chunks=chunks)
     _units = dset.ac.attrs.get("units", "")
+    frlow = float(dset.frlow)
+    frhigh = float(dset.frhigh)
+    nfreq = dset.dims["nfreq"]
+    ndir = dset.dims["ndir"]
     dset = dset.rename(
         {
             "nfreq": attrs.FREQNAME,
@@ -133,9 +137,14 @@ def read_hot_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
     dset[attrs.SPECNAME].attrs.update(
         {"_units": _units, "_variable_name": attrs.SPECNAME}
     )
-    dset[attrs.FREQNAME] = dset.SPSIG / (2 * np.pi)  # rad to Hz
-    dset[attrs.DIRNAME] = dset.SPDIR
-    dset[attrs.SPECNAME] = dset[attrs.SPECNAME] * dset.SPSIG * (2 * np.pi)  # action to energy
+    spsig = xr.DataArray(
+        frlow * (frhigh / frlow) ** (np.arange(nfreq) / (nfreq - 1)) * (2 * np.pi),
+        dims=[attrs.FREQNAME],
+    )
+    spdir = xr.DataArray(np.arange(ndir) * (2 * np.pi / ndir), dims=[attrs.DIRNAME])
+    dset[attrs.FREQNAME] = spsig / (2 * np.pi)  # rad to Hz
+    dset[attrs.DIRNAME] = spdir
+    dset[attrs.SPECNAME] = dset[attrs.SPECNAME] * spsig * (2 * np.pi)  # action to energy
     dset[attrs.DIRNAME] = dset[attrs.DIRNAME] * R2D  # rad to deg
     dset[attrs.SPECNAME] /= R2D
     dset[attrs.DIRNAME] = (270 - dset[attrs.DIRNAME] + 360) % 360  # trig to nautical
