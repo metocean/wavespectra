@@ -90,6 +90,82 @@ def read_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
     return dset.drop_vars(to_drop).transpose(*dims)
 
 
+def read_hot_wwm(filename_or_fileglob, chunks={}, convert_wind_vectors=True):
+    """Read spectra from a WWM hotstart file (wwm_hot_out.nc).
+
+    Hotstart files differ from WWM station output: action density is stored on
+    mesh nodes (mnp dim) with integer frequency/direction index dimensions.
+    Frequencies and directions are reconstructed from frlow/frhigh scalars and
+    dimension sizes rather than read from explicit SPSIG/SPDIR variables.
+
+    Args:
+        - filename_or_fileglob (str): filename or fileglob specifying multiple
+          files to read.
+        - chunks (dict): chunk sizes for dimensions in dataset. By default
+          dataset is loaded using single chunk for all dimensions (see
+          xr.open_mfdataset documentation).
+        - convert_wind_vectors (bool): choose it to convert wind vectors into
+          speed / direction data arrays.
+
+    Returns:
+        - dset (SpecDataset): spectra dataset object with standard wavespectra
+          dimensions (time, site, freq, dir).
+    """
+    dset = xr.open_mfdataset(filename_or_fileglob, chunks=chunks)
+    _units = dset.ac.attrs.get("units", "")
+    frlow = float(dset.frlow)
+    frhigh = float(dset.frhigh)
+    nfreq = dset.dims["nfreq"]
+    ndir = dset.dims["ndir"]
+    dset = dset.rename(
+        {
+            "nfreq": attrs.FREQNAME,
+            "ndir": attrs.DIRNAME,
+            "mnp": attrs.SITENAME,
+            "ac": attrs.SPECNAME,
+            "lon": attrs.LONNAME,
+            "lat": attrs.LATNAME,
+            "depth": attrs.DEPNAME,
+            "ocean_time": attrs.TIMENAME,
+        }
+    )
+    if convert_wind_vectors and "Uwind" in dset and "Vwind" in dset:
+        dset[attrs.WSPDNAME], dset[attrs.WDIRNAME] = uv_to_spddir(
+            dset["Uwind"], dset["Vwind"], coming_from=True
+        )
+    set_spec_attributes(dset)
+    dset[attrs.SPECNAME].attrs.update(
+        {"_units": _units, "_variable_name": attrs.SPECNAME}
+    )
+    spsig = xr.DataArray(
+        frlow * (frhigh / frlow) ** (np.arange(nfreq) / (nfreq - 1)) * (2 * np.pi),
+        dims=[attrs.FREQNAME],
+    )
+    spdir = xr.DataArray(np.arange(ndir) * (2 * np.pi / ndir), dims=[attrs.DIRNAME])
+    dset[attrs.FREQNAME] = spsig / (2 * np.pi)  # rad to Hz
+    dset[attrs.DIRNAME] = spdir
+    dset[attrs.SPECNAME] = dset[attrs.SPECNAME] * spsig * (2 * np.pi)  # action to energy
+    dset[attrs.DIRNAME] = dset[attrs.DIRNAME] * R2D  # rad to deg
+    dset[attrs.SPECNAME] /= R2D
+    dset[attrs.DIRNAME] = (270 - dset[attrs.DIRNAME] + 360) % 360  # trig to nautical
+    dset = dset.sortby(attrs.DIRNAME, ascending=True)
+    to_drop = [
+        dvar
+        for dvar in dset.data_vars
+        if dvar
+        not in [
+            attrs.SPECNAME,
+            attrs.WSPDNAME,
+            attrs.WDIRNAME,
+            attrs.DEPNAME,
+            attrs.LONNAME,
+            attrs.LATNAME,
+        ]
+    ]
+    dims = [d for d in ["time", "site", "freq", "dir"] if d in dset.efth.dims]
+    return dset.drop_vars(to_drop).transpose(*dims)
+
+
 if __name__ == "__main__":
     import os
 
