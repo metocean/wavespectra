@@ -1,0 +1,44 @@
+[project]
+name = "wavespectra"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "certifi>=2026.7.22",
+    "cftime>=1.6.5",
+    "click>=8.4.2",
+    "cloudpickle>=3.1.2",
+    "cycler>=0.12.1",
+    "dask>=0.17.1",
+    "dbfread>=2.0.7",
+    "fsspec>=2026.7.0",
+    "importlib-metadata>=9.0.0",
+    "kiwisolver>=1.5.0",
+    "locket>=1.0.0",
+    "matplotlib>=3.11.1",
+    "mpmath>=1.3.0",
+    "netcdf4>=1.7.4",
+    "numpy>=2.4.6",
+    "packaging>=26.3",
+    "pandas>=3.0.5",
+    "partd>=1.4.2",
+    "pillow>=12.3.0",
+    "pyaml>=26.7.0",
+    "pyparsing>=3.3.2",
+    "python-dateutil>=2.9.0.post0",
+    "pyyaml>=6.0.3",
+    "scipy>=1.17.1",
+    "setuptools>=84.0.0",
+    "six>=1.17.0",
+    "sortedcontainers>=2.4.0",
+    "sympy>=1.14.0",
+    "toolz>=1.1.0",
+    "xarray>=0.16.1",
+    "zipp>=4.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
