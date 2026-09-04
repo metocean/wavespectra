@@ -1,4 +1,0 @@
-netCDF4
-sympy
-dbfread
-matplotlib<3.4

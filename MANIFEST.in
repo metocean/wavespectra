@@ -2,4 +2,3 @@ include LICENSE.txt
 include wavespectra/core/attributes.yml
 include wavespectra/specpart/specpart.f90
 include wavespectra/specpart/specpart.pyf
-recursive-include requirements *.txt
