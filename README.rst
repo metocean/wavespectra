@@ -13,39 +13,59 @@ The documentation is hosted on ReadTheDocs at https://wavespectra-metocean.readt
 
 Install:
 --------
-Where to get it
-~~~~~~~~~~~~~~~
-The source code is currently hosted on GitHub at: https://github.com/metocean/wavespectra
+The source code is hosted on GitHub at https://github.com/metocean/wavespectra.
 
 Install from sources
 ~~~~~~~~~~~~~~~~~~~~
-Install requirements. Navigate to the base root of wavespectra_ and execute:
+Clone the repository and navigate to its root directory:
 
 .. code:: bash
 
-   # Default install, miss some dependencies and functionality
-   pip install -r requirements/default.txt
+   git clone https://github.com/metocean/wavespectra.git
+   cd wavespectra
 
-   # Also, for complete install
-   pip install -r requirements/extra.txt
-
-   # Also, for testing requirements
-   pip install -r requirements/test.txt
-
-Then install wavespectra:
+Create a Python 3.9 environment:
 
 .. code:: bash
 
-   python setup.py install
+   uv venv --python 3.9
+   source .venv/bin/activate
 
-   # Run pytest integration
-   python setup.py test
-
-Alternatively, to install in `development mode`_:
+Install the Fortran compiler required to build spectral partitioning. On Debian
+or Ubuntu:
 
 .. code:: bash
 
-   pip install -e .
+   sudo apt install gcc gfortran
+
+For a non-editable installation with all optional dependencies:
+
+.. code:: bash
+
+   uv sync --no-editable --all-extras
+
+The ``metocean`` extra installs ``cfjson`` from GitHub over HTTPS. To omit that
+dependency, install the public optional and test dependencies instead:
+
+.. code:: bash
+
+   uv sync --no-editable --extra extra --extra test
+
+Run the tests:
+
+.. code:: bash
+
+   pytest
+
+For an editable installation, first install the legacy build tools:
+
+.. code:: bash
+
+   uv pip install "setuptools<65" wheel "numpy>=1.23.5,<2.0" "pip==22.3.1"
+
+   SETUPTOOLS_ENABLE_FEATURES="legacy-editable" .venv/bin/pip install -e ".[extra,test,metocean]" --no-build-isolation --disable-pip-version-check
+
+Run the tests with ``pytest`` after an editable installation.
 
 Windows installation
 ~~~~~~~~~~~~~~~~~~~~

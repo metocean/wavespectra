@@ -6,64 +6,72 @@
 Installation
 ============
 
-Install from pypi
------------------
+Requirements
+------------
+
+wavespectra supports Python 3.8, 3.9, and 3.10. Python 3.9 is recommended
+for this legacy build because spectral partitioning uses ``numpy.distutils``
+and a compiled Fortran extension.
+
+A Fortran compiler is required on Linux. On Debian or Ubuntu:
+
 .. code:: bash
 
-   # Default install, miss some dependencies and functionality
-   pip install git+ssh://git@github.com/metocean/wavespectra
-
-   # Complete install
-   pip install 'git+ssh://git@github.com/metocean/wavespectra.git#egg=wavespectra[extra]'
+   sudo apt install gcc gfortran
 
 Install from sources
 --------------------
-Get the source code from Github_:
+The source code is hosted at Github_:
 
 .. code:: bash
 
-    git clone git@github.com:metocean/wavespectra.git
+   git clone https://github.com/metocean/wavespectra.git
+   cd wavespectra
 
-Install requirements. Navigate to the base root of wavespectra and execute:
-
-.. code:: bash
-
-   # Default install, miss some dependencies and functionality
-   pip install -r requirements/default.txt
-
-   # Also, for complete install
-   pip install -r requirements/extra.txt
-
-   # Also, for testing requirements
-   pip install -r requirements/test.txt
-
-Then install wavespectra:
+Create and activate a Python 3.9 environment:
 
 .. code:: bash
 
-   python setup.py install
+   uv venv --python 3.9
+   source .venv/bin/activate
 
-Alternatively, to install in `development mode`_:
+For a non-editable installation with all optional dependencies:
 
 .. code:: bash
 
-   pip install -e .
+   uv sync --no-editable --all-extras
+
+The ``metocean`` extra installs ``cfjson`` from GitHub over HTTPS. To omit that
+dependency, install the public optional and test dependencies instead:
+
+.. code:: bash
+
+   uv sync --no-editable --extra extra --extra test
+
+Run the tests:
+
+.. code:: bash
+
+   pytest
+
+For an editable installation, first install the legacy build tools:
+
+.. code:: bash
+
+   uv pip install "setuptools<65" wheel "numpy>=1.23.5,<2.0" "pip==22.3.1"
+
+   SETUPTOOLS_ENABLE_FEATURES="legacy-editable" .venv/bin/pip install -e ".[extra,test,metocean]" --no-build-isolation --disable-pip-version-check
 
 Running tests
---------------------
+-------------
 
 .. code:: bash
 
-    # Running all tests
-    py.test -v
+   pytest -v
 
-    # Or, alternatively
-    python setup.py test
-
-    # Running specific tests
-    py.test -v tests/core
-    py.test -v tests/core/test_wave_stats.py
-    py.test -v tests/core/test_wave_stats.py::TestSpecArray
+   pytest -v tests/core
+   pytest -v tests/core/test_wave_stats.py
+   pytest -v tests/core/test_wave_stats.py::TestSpecArray
 
 .. _Github: https://github.com/metocean/wavespectra
 .. _development mode: https://pip.pypa.io/en/latest/reference/pip_install/#editable-installs
