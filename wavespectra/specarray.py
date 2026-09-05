@@ -876,6 +876,199 @@ class SpecArray:
             "Wave spreading at the peak wave frequency method not defined"
         )
 
+    def cross_sea_Li2016(self):
+        """Crossed Sea parameters by Li et al.,2016
+         Li, X. (2016). A new insight from space into swell propagation and crossing in the global oceans. Geophysical Research Letters, 43, 5202 - 5209.
+        Two criteria are used to identify a crossing sea case: 
+        (1) The angle between two swell systems is larger than 40° [Cavaleri et al., 2012; Onorato et al., 2010]. 
+        (2) The proportion of the second peak wave energy in the total retrieved swell wave energy of a single case is higher than 20%.
+
+        Args:
+            - xx
+
+        Returns:
+            - cross_sea (array): array of 0/1 where "crossed sea" condition is satisfied
+
+        References:
+            -  Li, X. (2016). A new insight from space into swell propagation and crossing in the 
+              global oceans. Geophysical Research Letters, 43, 5202 - 5209.
+        """
+        try : 
+            # Condition 1 - The angle between two swell systems is larger than 40° [Cavaleri et al., 2012; Onorato et al., 2010].
+            dir_difference  = np.abs(self.dpm()[1]-self.dpm()[2])
+            # if absolute difference in larger than 180, then need to do 360-diff to get smallest difference
+            # e.g. abs(10-350) = 340 ,340>180 dir_diff = 360-340 = 20
+            dir_difference = dir_difference.where(dir_difference<180,other = 360-dir_difference) # if dir_difference<180, keep as is, if not do 360-dir_difference
+            condition1 = dir_difference > 40.0 # note if dir_difference is nan, then it will be False/0 which is fine
+            # Condition 2 - The proportion of the second peak wave energy in the total retrieved swell wave energy of a single case is higher than 20%.
+            swell_energy = (self.hs()[1:]**2).sum(dim='part') # sum of all swell's hs**2
+            condition2 = self.hs()[2]**2 >= 0.2 * swell_energy
+            cross_sea_Li2016 = np.logical_and(condition1,condition2) * 1.0
+            cross_sea_Li2016.attrs.update(
+                OrderedDict(
+                    (
+                        ("standard_name", 'cross_sea_Li2016'), # self.standard_name(self._my_name())
+                        ("units",'dimensionless'),             # self._units(self._my_name())
+                    )
+                )
+            )
+
+            return cross_sea_Li2016.rename('cross_sea_Li2016')
+        except:
+            raise ValueError(
+             "only works on partitionned dataset, you need to call dspart = ds.spec.partition(ds.wspd, ds.wdir, ds.dpt) before hand")
+
+    def r_crest_trough_corr(self) :
+        """ crest-trough correlation "r" of the wave record from spectral density.
+            r is the auto-correlation of the sea surface elevation at half the wave period.
+
+        Reference:
+            Gemmrich, J., & Cicon, L. (2022). Generation mechanism and prediction
+            of an observed extreme rogue wave. Scientific Reports, 12.
+            which is based on:
+            Tayfun, M. Aziz, and Francesco Fedele. Wave-Height Distributions and
+            Nonlinear Effects. Ocean Eng, vol. 34, no. 11, Aug. 2007, pp. 1631-49.
+        """
+        # convert f -> omega and S(f) -> S(omega): Simon originally wrote with angular frequency, but in the
+        # end used m0 based on frequency to calculate "r", which I found inconsistent. This follow The Tayfun Fedele
+        # paper, but they base all their calculations on angular spectral density. Gemmrich and Cicon 2022 express
+        # r based on frequency and S(f), so I will follow that here as it is consistent with our m0.
+
+        # Calculate \tau and T
+        m0 = self.momf(0).sum(dim=attrs.DIRNAME)*self.dd
+        m1 = self.momf(1).sum(dim=attrs.DIRNAME)*self.dd
+        t_bar = m0 / m1
+        tau = t_bar/2
+        arg = 2 * np.pi * self.freq * tau
+        rho    = (self.oned() * np.cos(arg) * self.dfarr).sum(dim=attrs.FREQNAME)
+        lambd  = (self.oned() * np.sin(arg) * self.dfarr).sum(dim=attrs.FREQNAME)
+
+        r_crest_trough_corr = (1. /m0) * np.sqrt(rho ** 2 + lambd ** 2)
+        r_crest_trough_corr.attrs.update(
+            OrderedDict(
+                (
+                    ("standard_name", 'r_crest_trough_corr'), # self.standard_name(self._my_name())
+                    ("units",'dimensionless'),             # self._units(self._my_name())
+                )
+            )
+        )
+        return r_crest_trough_corr.rename('r_crest_trough_corr') # or r_crest_trough_corr.rename('r_crest_trough_corr') ?
+
+    def wavenumber(self,wave_period =10.0, water_depth=None):
+        """Compute wave number for user-input wave period"""
+        if water_depth:
+            ang_freq = 2 * np.pi * (1/wave_period)
+            wavenumber =  wavenuma(ang_freq, water_depth)
+        else: # deep water approximation
+            wavenumber = 2 * np.pi / (1.56 * wave_period ** 2)
+        return wavenumber.rename('wavenumber')
+
+    def steepness(self, tail=True):
+        """
+        Reference
+            Häfner, Dion, Johannes Gemmrich and Markus Jochum. “FOWD: A Free Ocean Wave Dataset 
+            for Data Mining and Machine Learning.” Journal of Atmospheric and Oceanic Technology (2020)
+            >> Equation (9)
+        """
+        m0 = self.momf(0).sum(dim=attrs.DIRNAME)*self.dd
+        steepness = self.wavenumber(self.tp()) * np.sqrt(m0)
+
+        steepness.attrs.update(
+            OrderedDict(
+                (
+                    ("standard_name", 'steepness'), # self.standard_name(self._my_name())
+                    ("units",'dimensionless'),             # self._units(self._my_name())
+                )
+            )
+        )
+        return steepness.rename('steepness')
+
+    def goda_peakedness(self):
+        """Compute Goda's peakedness factor.
+
+        Reference:
+            Serio, Marina, et al. “On the Computation of the Benjamin-Feir Index.”
+            Nuovo Cimento Della Societa Italiana Di Fisica C, vol. 28, Nov. 2005, pp. 893–903.
+            ResearchGate, doi:10.1393/ncc/i2005-10134-1.
+
+            Häfner, Dion, Johannes Gemmrich and Markus Jochum. “FOWD: A Free Ocean Wave Dataset 
+            for Data Mining and Machine Learning.” Journal of Atmospheric and Oceanic Technology (2020)
+            >> Equation (10) : "peakedness"
+
+            see also
+            https://apps.ecmwf.int/codes/grib/param-db/?id=140254
+            https://github.com/dionhaefner/FOWD/blob/7e4f2c3b1be6f55a0f399f6e48a39dc5507c9afe/fowd/operators.py#L386
+        """
+        m0 = self.momf(0).sum(dim=attrs.DIRNAME)*self.dd# self._twod(self.momf(0), dim=attrs.FREQNAME).spec.oned(skipna=False)
+        Qp = (2 / m0 ** 2) * (self.freq * self.oned() ** 2 * self.dfarr).sum(dim=attrs.FREQNAME)
+        Qp.attrs.update(
+            OrderedDict(
+                (
+                    ("standard_name", 'Goda peakedness factor'), # self.standard_name(self._my_name())
+                    ("units",'dimensionless'),             # self._units(self._my_name())
+                )
+            )
+        )
+        return Qp.rename('goda_peakedness')
+
+    def BFI(self): #bandwidth, steepness, peak_wavenumber):
+        """Compute Benjamin-Feir index (BFI) from bandwidth and steepness estimates.
+           Useful index for estimating the freak wave occurrence for a given unidirectional wave
+
+
+        References:
+            Serio, Marina, et al. “On the Computation of the Benjamin-Feir Index.”
+            Nuovo Cimento Della Societa Italiana Di Fisica C, vol. 28, Nov. 2005, pp. 893–903.
+            ResearchGate, doi:10.1393/ncc/i2005-10134-1.
+
+            Häfner, Dion, Johannes Gemmrich and Markus Jochum. “FOWD: A Free Ocean Wave Dataset 
+            for Data Mining and Machine Learning.” Journal of Atmospheric and Oceanic Technology (2020)
+            >> Equations (11>14)
+            see also https://github.com/dionhaefner/FOWD/blob/6f19fe56cc2e43d7da9fee2f715fea25636dac5e/fowd/operators.py#L400
+
+            Gemmrich, J., & Cicon, L. (2022). Generation mechanism and prediction of an observed extreme rogue wave. Scientific Reports, 12.
+
+            Liu et al., 2022 Statistical properties of surface gravity waves and freak wave occurrence in crossing sea states,
+            PHYSICAL REVIEW FLUIDS 7, 074805 (2022)
+            Eqs (9)
+
+        """
+        # Simple version following Gemmrich, J., & Cicon, L. (2022). Eq. 4,5,6
+        BFI = np.sqrt(2) * self.steepness()/self.sw() # eqn(4)
+        BFI.attrs.update(
+            OrderedDict(
+                (
+                    ("standard_name", 'Benjamin-Feir Index'), # self.standard_name(self._my_name())
+                    ("units",'dimensionless'),             # self._units(self._my_name())
+                )
+            )
+        )
+        return BFI.rename("BFI")
+
+    def directionality_index(self):
+        R = 1/2 * ((D2R*self.dspr())**2)/((self.sw())**2)
+        return R.rename("directionality_index")
+
+    def BFI2D(self):
+        a2 = 7.1
+        # convert dspr to radians
+        R = self.directionality_index()
+        return (self.BFI()/np.sqrt(1 + a2 * R)).rename("BFI2D")
+
+    def kurtosis(self):
+        """Compute kurtosis according to Mori and Janssen JPO 2011
+        The value provided here is the fourth-order cumulant of the surface
+        elevation probability distribution k40, which is equal to
+        kurtosis-3 (k40 = u4 - 3)
+
+        Some discussion: The kurtosis enters in the maximum wave height
+        distribution function as a nonlinear correction to the Rayleigh distribution:
+        when the kurtosis tends to 3, the expected Gaussian value, then the dis-
+        tribution function tends to the Rayleigh distribution.
+        That's why it is used the cumulant k40, which represents deviation from 3 (Gaussian).
+        """
+        return (np.pi/np.sqrt(3) * (self.BFI2D()**2)).rename("kurtosis")
+
     def stats(self, stats, fmin=None, fmax=None, dmin=None, dmax=None, names=None):
         """Calculate multiple spectral stats into a Dataset.
 
