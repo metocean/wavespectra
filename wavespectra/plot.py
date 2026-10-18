@@ -54,7 +54,8 @@ def get_axis(figsize, size, aspect, ax, subplot_kw={}):
         raise ValueError("cannot provide `aspect` argument without `size`")
 
     if ax is None:
-        ax = plt.gca(projection=subplot_kw.get("projection", None))
+        # plt.gca(projection=...) was removed in matplotlib 3.6
+        ax = plt.subplot(projection=subplot_kw.get("projection", None))
 
     return ax
 
